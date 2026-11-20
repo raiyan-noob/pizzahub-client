@@ -120,8 +120,12 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* 1. HERO BANNER SECTION */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-amber-500/10 via-amber-100/30 to-transparent dark:from-stone-900/60 dark:to-stone-950 py-20 lg:py-28 border-b border-amber-100 dark:border-stone-800">
+      {/* 1. HERO BANNER SECTION (Polished Light-Mode Aesthetic) */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-amber-100/60 via-orange-50/40 to-transparent dark:from-stone-900/60 dark:to-stone-950 py-20 lg:py-28 border-b border-amber-200/60 dark:border-stone-800">
+        {/* Soft Ambient Light Glows */}
+        <div className="absolute top-10 left-1/4 w-96 h-96 bg-red-400/10 dark:bg-red-900/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-20 right-10 w-96 h-96 bg-amber-400/15 dark:bg-amber-900/10 rounded-full blur-3xl pointer-events-none" />
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Column: Headline, Description & CTA */}
@@ -131,14 +135,14 @@ export default function HomePage() {
               transition={{ duration: 0.6 }}
               className="lg:col-span-7 space-y-6 text-center lg:text-left"
             >
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-100 dark:bg-red-950/70 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-xs font-bold tracking-wide uppercase">
-                <Flame className="w-4 h-4 fill-red-500" />
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-100/80 dark:bg-red-950/70 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-xs font-black tracking-wide uppercase shadow-xs">
+                <Flame className="w-4 h-4 fill-red-600 text-red-600" />
                 <span>Wood-Fired & Handcrafted Daily</span>
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-stone-900 dark:text-stone-50 leading-[1.1]">
                 Hot & Fresh Pizza{" "}
-                <span className="bg-gradient-to-r from-red-600 via-orange-600 to-amber-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 bg-clip-text text-transparent">
                   Delivered to Your Door
                 </span>
               </h1>
@@ -150,7 +154,7 @@ export default function HomePage() {
               <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                 <Link
                   href="/menu"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700 text-white font-bold text-base shadow-lg shadow-red-500/25 hover:shadow-xl transition-all transform hover:-translate-y-0.5"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 hover:from-red-700 hover:to-amber-700 text-white font-black text-base shadow-xl shadow-red-500/25 hover:shadow-2xl transition-all transform hover:-translate-y-0.5"
                 >
                   <Pizza className="w-5 h-5" />
                   <span>Explore Pizza Menu</span>
@@ -159,25 +163,25 @@ export default function HomePage() {
 
                 <Link
                   href="/signup"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl border-2 border-stone-300 dark:border-stone-700 hover:border-red-500 font-bold text-sm text-stone-800 dark:text-stone-200 bg-white/70 dark:bg-stone-850 backdrop-blur-xs transition-colors"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl border-2 border-amber-300/80 dark:border-stone-700 hover:border-red-500 font-bold text-sm text-stone-800 dark:text-stone-200 bg-white/80 dark:bg-stone-850 backdrop-blur-xs shadow-xs hover:shadow-md transition-all"
                 >
                   <span>Restaurant Owner? Join as Vendor</span>
                 </Link>
               </div>
 
-              {/* Key Trust Stats */}
-              <div className="pt-6 grid grid-cols-3 gap-4 border-t border-stone-200/60 dark:border-stone-800/80 max-w-lg mx-auto lg:mx-0">
-                <div>
-                  <p className="text-2xl font-black text-stone-900 dark:text-stone-100">30 Min</p>
-                  <p className="text-xs text-stone-500">Average Delivery</p>
+              {/* Key Trust Stats Cards */}
+              <div className="pt-6 grid grid-cols-3 gap-3.5 max-w-lg mx-auto lg:mx-0">
+                <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-stone-900/80 border border-amber-200/60 dark:border-stone-800 shadow-xs">
+                  <p className="text-2xl font-black text-red-600 dark:text-stone-100">30 Min</p>
+                  <p className="text-xs font-semibold text-stone-500">Average Delivery</p>
                 </div>
-                <div>
-                  <p className="text-2xl font-black text-stone-900 dark:text-stone-100">100%</p>
-                  <p className="text-xs text-stone-500">Artisan Wood-Fired</p>
+                <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-stone-900/80 border border-amber-200/60 dark:border-stone-800 shadow-xs">
+                  <p className="text-2xl font-black text-amber-600 dark:text-stone-100">100%</p>
+                  <p className="text-xs font-semibold text-stone-500">Artisan Wood-Fired</p>
                 </div>
-                <div>
-                  <p className="text-2xl font-black text-stone-900 dark:text-stone-100">4.9 ★</p>
-                  <p className="text-xs text-stone-500">Slice Satisfaction</p>
+                <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-stone-900/80 border border-amber-200/60 dark:border-stone-800 shadow-xs">
+                  <p className="text-2xl font-black text-emerald-600 dark:text-stone-100">4.9 ★</p>
+                  <p className="text-xs font-semibold text-stone-500">Slice Satisfaction</p>
                 </div>
               </div>
             </motion.div>
@@ -189,32 +193,32 @@ export default function HomePage() {
               transition={{ duration: 0.7 }}
               className="lg:col-span-5 relative flex justify-center"
             >
-              <div className="relative w-full max-w-md aspect-square rounded-full p-4 bg-gradient-to-tr from-amber-400/30 via-red-500/20 to-transparent backdrop-blur-md">
+              <div className="relative w-full max-w-md aspect-square rounded-full p-4 bg-gradient-to-tr from-amber-400/40 via-red-500/20 to-transparent backdrop-blur-md shadow-2xl">
                 <img
                   src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=900&auto=format&fit=crop&q=80"
                   alt="Hot Sizzling Wood-Fired Pizza"
-                  className="w-full h-full object-cover rounded-full shadow-2xl animate-spin-extremely-slow border-4 border-white/50 dark:border-stone-800/80"
+                  className="w-full h-full object-cover rounded-full shadow-2xl border-4 border-white dark:border-stone-800"
                 />
 
-                {/* Floating Highlights */}
-                <div className="absolute -bottom-2 -left-2 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md p-3.5 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xl flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-600 flex items-center justify-center font-bold">
+                {/* Floating Highlights with subtle light-mode glow */}
+                <div className="absolute -bottom-2 -left-2 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md p-3.5 rounded-2xl border border-amber-200/80 dark:border-stone-800 shadow-xl flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-600 flex items-center justify-center font-bold text-lg">
                     🔥
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-stone-900 dark:text-stone-100">
+                    <p className="text-xs font-black text-stone-900 dark:text-stone-100">
                       Baking at 900°F
                     </p>
                     <p className="text-[11px] text-stone-500">Authentic Stone Oven</p>
                   </div>
                 </div>
 
-                <div className="absolute -top-2 -right-2 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md p-3.5 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xl flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-red-500/20 text-red-600 flex items-center justify-center font-bold">
+                <div className="absolute -top-2 -right-2 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md p-3.5 rounded-2xl border border-amber-200/80 dark:border-stone-800 shadow-xl flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-red-500/20 text-red-600 flex items-center justify-center font-bold text-lg">
                     🍕
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-stone-900 dark:text-stone-100">
+                    <p className="text-xs font-black text-stone-900 dark:text-stone-100">
                       Fresh Mozzarella
                     </p>
                     <p className="text-[11px] text-stone-500">100% Real Fior di Latte</p>
@@ -227,24 +231,24 @@ export default function HomePage() {
       </section>
 
       {/* 2. DYNAMIC SECTION 1: FEATURED MENU ITEMS */}
-      <section className="py-20 bg-stone-50/70 dark:bg-stone-950/70">
+      <section className="py-20 bg-amber-50/40 dark:bg-stone-950/70">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
             <div>
-              <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-2">
+              <div className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-red-600 dark:text-red-400 mb-2">
                 <Sparkles className="w-3.5 h-3.5" /> Hand-Selected Slices
               </div>
               <h2 className="text-3xl sm:text-4xl font-black text-stone-900 dark:text-stone-100">
                 Featured Artisan Menu Items
               </h2>
-              <p className="text-sm text-stone-500 dark:text-stone-400 mt-1 max-w-xl">
+              <p className="text-sm text-stone-600 dark:text-stone-400 mt-1 max-w-xl">
                 Browse our highest rated, fresh wood-fired pizzas certified by our local dough artisans and pizza connoisseurs.
               </p>
             </div>
 
             <Link
               href="/menu"
-              className="mt-4 md:mt-0 inline-flex items-center gap-2 text-sm font-bold text-red-600 dark:text-red-400 hover:text-amber-600 transition-colors"
+              className="mt-4 md:mt-0 inline-flex items-center gap-2 text-sm font-black text-red-600 dark:text-red-400 hover:text-amber-600 transition-colors"
             >
               <span>Explore All Menu Items</span>
               <ChevronRight className="w-4 h-4" />
@@ -256,7 +260,7 @@ export default function HomePage() {
               {[...Array(6)].map((_, i) => (
                 <div
                   key={i}
-                  className="h-80 rounded-2xl bg-stone-200 dark:bg-stone-800 animate-pulse"
+                  className="h-80 rounded-3xl bg-amber-100/50 dark:bg-stone-800 animate-pulse border border-amber-200/40"
                 />
               ))}
             </div>
@@ -267,7 +271,7 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-            <div className="p-12 text-center rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800">
+            <div className="p-12 text-center rounded-3xl bg-white dark:bg-stone-900 border border-amber-200/60 dark:border-stone-800 shadow-sm">
               <Pizza className="w-12 h-12 text-stone-400 mx-auto mb-3" />
               <h3 className="text-lg font-bold">No items found</h3>
               <p className="text-sm text-stone-500">Check back shortly as bakeries post new slices.</p>
@@ -277,10 +281,10 @@ export default function HomePage() {
       </section>
 
       {/* 3. DYNAMIC SECTION 2: PIZZA CATEGORIES */}
-      <section className="py-20 bg-white dark:bg-stone-900 border-y border-stone-200/80 dark:border-stone-800">
+      <section className="py-20 bg-white dark:bg-stone-900 border-y border-amber-200/60 dark:border-stone-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-14">
-            <span className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+            <span className="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">
               Hand-Stretched Variety
             </span>
             <h2 className="text-3xl sm:text-4xl font-black text-stone-900 dark:text-stone-100 mt-1">
@@ -292,34 +296,34 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categories.map((cat, i) => {
+            {categories.map((cat) => {
               const Icon = cat.icon;
               return (
                 <Link
                   key={cat.slug}
                   href={`/menu?category=${encodeURIComponent(cat.slug)}`}
-                  className="group relative rounded-3xl overflow-hidden border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/50 hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+                  className="group relative rounded-3xl overflow-hidden border border-amber-200/70 dark:border-stone-800 bg-amber-50/40 dark:bg-stone-800/50 hover:shadow-2xl hover:shadow-amber-500/10 hover:border-red-300 transition-all duration-300 flex flex-col justify-between"
                 >
                   <div className="relative aspect-16/9 w-full overflow-hidden">
                     <img
                       src={cat.image}
                       alt={cat.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
                     <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-white">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-red-600/90 flex items-center justify-center text-white backdrop-blur-xs">
-                          <Icon className="w-4 h-4" />
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8.5 h-8.5 rounded-xl bg-red-600 flex items-center justify-center text-white shadow-md">
+                          <Icon className="w-4.5 h-4.5" />
                         </div>
-                        <h3 className="font-bold text-lg text-white">{cat.title}</h3>
+                        <h3 className="font-black text-lg text-white">{cat.title}</h3>
                       </div>
                       <ChevronRight className="w-5 h-5 text-amber-400 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
 
-                  <div className="p-4 bg-white dark:bg-stone-900">
-                    <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
+                  <div className="p-4.5 bg-white dark:bg-stone-900 border-t border-amber-100/60 dark:border-stone-800">
+                    <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed font-medium">
                       {cat.desc}
                     </p>
                   </div>
@@ -331,10 +335,10 @@ export default function HomePage() {
       </section>
 
       {/* 4. EXTRA SECTION 1: WHY CHOOSE PIZZAHUB? (Required) */}
-      <section className="py-20 bg-stone-50/60 dark:bg-stone-950/60">
+      <section className="py-20 bg-amber-50/50 dark:bg-stone-950/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400">
+            <span className="text-xs font-black uppercase tracking-wider text-red-600 dark:text-red-400">
               The PizzaHub Advantage
             </span>
             <h2 className="text-3xl sm:text-4xl font-black text-stone-900 dark:text-stone-100 mt-1">
@@ -345,51 +349,51 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-xs hover:shadow-lg transition-all">
-              <div className="w-12 h-12 rounded-2xl bg-red-100 dark:bg-red-950/70 text-red-600 flex items-center justify-center mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="p-7 rounded-3xl bg-white dark:bg-stone-900 border border-amber-200/70 dark:border-stone-800 shadow-sm hover:shadow-xl hover:shadow-red-500/10 hover:border-red-300 transition-all">
+              <div className="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mb-5 shadow-xs">
                 <Flame className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-lg text-stone-900 dark:text-stone-100 mb-2">
+              <h3 className="font-black text-lg text-stone-900 dark:text-stone-100 mb-2">
                 Wood-Fired Mastery
               </h3>
-              <p className="text-xs text-stone-500 leading-relaxed">
+              <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
                 Every partner pizzeria uses genuine refractory stone or wood-fired ovens running at 850°F+ for authentic blistered crusts.
               </p>
             </div>
 
-            <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-xs hover:shadow-lg transition-all">
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/70 text-amber-600 flex items-center justify-center mb-4">
+            <div className="p-7 rounded-3xl bg-white dark:bg-stone-900 border border-amber-200/70 dark:border-stone-800 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 hover:border-amber-300 transition-all">
+              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mb-5 shadow-xs">
                 <ShieldCheck className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-lg text-stone-900 dark:text-stone-100 mb-2">
+              <h3 className="font-black text-lg text-stone-900 dark:text-stone-100 mb-2">
                 Verified Local Bakeries
               </h3>
-              <p className="text-xs text-stone-500 leading-relaxed">
+              <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
                 All restaurant vendors and menu additions are reviewed and approved by administrators before appearing on our marketplace.
               </p>
             </div>
 
-            <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-xs hover:shadow-lg transition-all">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-950/70 text-emerald-600 flex items-center justify-center mb-4">
+            <div className="p-7 rounded-3xl bg-white dark:bg-stone-900 border border-amber-200/70 dark:border-stone-800 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 hover:border-emerald-300 transition-all">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-5 shadow-xs">
                 <Clock className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-lg text-stone-900 dark:text-stone-100 mb-2">
+              <h3 className="font-black text-lg text-stone-900 dark:text-stone-100 mb-2">
                 Hot & Timely Delivery
               </h3>
-              <p className="text-xs text-stone-500 leading-relaxed">
+              <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
                 Choose your exact preferred delivery date and enjoy insulated thermal boxing that keeps pizzas piping hot and cheeses stretchy.
               </p>
             </div>
 
-            <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-xs hover:shadow-lg transition-all">
-              <div className="w-12 h-12 rounded-2xl bg-purple-100 dark:bg-purple-950/70 text-purple-600 flex items-center justify-center mb-4">
+            <div className="p-7 rounded-3xl bg-white dark:bg-stone-900 border border-amber-200/70 dark:border-stone-800 shadow-sm hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-300 transition-all">
+              <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center mb-5 shadow-xs">
                 <Award className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-lg text-stone-900 dark:text-stone-100 mb-2">
+              <h3 className="font-black text-lg text-stone-900 dark:text-stone-100 mb-2">
                 Premium Vendor Perks
               </h3>
-              <p className="text-xs text-stone-500 leading-relaxed">
+              <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
                 Top restaurants upgrade with Stripe to earn verified Gold badges and prominent placement across neighborhood menus.
               </p>
             </div>
@@ -398,10 +402,10 @@ export default function HomePage() {
       </section>
 
       {/* 5. EXTRA SECTION 2: HOW PIZZAHUB WORKS & TESTIMONIALS */}
-      <section className="py-20 bg-white dark:bg-stone-900 border-t border-stone-200/80 dark:border-stone-800">
+      <section className="py-20 bg-white dark:bg-stone-900 border-t border-amber-200/60 dark:border-stone-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+            <span className="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">
               Simple 3-Step Process
             </span>
             <h2 className="text-3xl sm:text-4xl font-black text-stone-900 dark:text-stone-100 mt-1">
@@ -413,45 +417,45 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative mb-24">
-            <div className="flex flex-col items-center text-center p-6">
-              <div className="w-16 h-16 rounded-3xl bg-red-600 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-red-500/20 mb-6">
+            <div className="flex flex-col items-center text-center p-6 rounded-3xl bg-amber-50/30 dark:bg-stone-800/40 border border-amber-100 dark:border-stone-800">
+              <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-red-600 to-rose-600 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-red-500/25 mb-6">
                 1
               </div>
-              <h3 className="font-bold text-lg text-stone-900 dark:text-stone-100 mb-2">
+              <h3 className="font-black text-lg text-stone-900 dark:text-stone-100 mb-2">
                 Browse & Filter
               </h3>
-              <p className="text-xs text-stone-500 leading-relaxed max-w-xs">
+              <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed max-w-xs">
                 Explore local pizzerias, filter by your favorite style (Classic, Gourmet, Vegetarian), and sort by price.
               </p>
             </div>
 
-            <div className="flex flex-col items-center text-center p-6">
-              <div className="w-16 h-16 rounded-3xl bg-amber-500 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-amber-500/20 mb-6">
+            <div className="flex flex-col items-center text-center p-6 rounded-3xl bg-amber-50/30 dark:bg-stone-800/40 border border-amber-100 dark:border-stone-800">
+              <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-amber-500/25 mb-6">
                 2
               </div>
-              <h3 className="font-bold text-lg text-stone-900 dark:text-stone-100 mb-2">
+              <h3 className="font-black text-lg text-stone-900 dark:text-stone-100 mb-2">
                 Customize & Order
               </h3>
-              <p className="text-xs text-stone-500 leading-relaxed max-w-xs">
+              <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed max-w-xs">
                 Pick your delivery date, input special kitchen requests, and submit your order directly to the restaurant owner.
               </p>
             </div>
 
-            <div className="flex flex-col items-center text-center p-6">
-              <div className="w-16 h-16 rounded-3xl bg-emerald-600 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-emerald-500/20 mb-6">
+            <div className="flex flex-col items-center text-center p-6 rounded-3xl bg-amber-50/30 dark:bg-stone-800/40 border border-amber-100 dark:border-stone-800">
+              <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-emerald-600 to-teal-600 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-emerald-500/25 mb-6">
                 3
               </div>
-              <h3 className="font-bold text-lg text-stone-900 dark:text-stone-100 mb-2">
+              <h3 className="font-black text-lg text-stone-900 dark:text-stone-100 mb-2">
                 Track & Devour
               </h3>
-              <p className="text-xs text-stone-500 leading-relaxed max-w-xs">
+              <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed max-w-xs">
                 Watch the live order status timeline update from accepted to baking, then enjoy your fresh wood-fired pizza!
               </p>
             </div>
           </div>
 
           {/* Customer Testimonials Grid */}
-          <div className="pt-12 border-t border-stone-200 dark:border-stone-800">
+          <div className="pt-12 border-t border-amber-200/60 dark:border-stone-800">
             <div className="text-center max-w-xl mx-auto mb-12">
               <h3 className="text-2xl font-black text-stone-900 dark:text-stone-100">
                 Loved by Pizza Devotees
@@ -463,30 +467,30 @@ export default function HomePage() {
               {testimonials.map((t, idx) => (
                 <div
                   key={idx}
-                  className="p-6 rounded-3xl bg-stone-50 dark:bg-stone-800/50 border border-stone-200 dark:border-stone-700/60 flex flex-col justify-between"
+                  className="p-7 rounded-3xl bg-white dark:bg-stone-850 border border-amber-200/70 dark:border-stone-700/60 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between"
                 >
                   <div>
-                    <div className="flex items-center gap-1 text-amber-500 mb-3">
+                    <div className="flex items-center gap-1 text-amber-500 mb-3.5">
                       {[...Array(t.rating)].map((_, i) => (
                         <Star key={i} className="w-4 h-4 fill-amber-500" />
                       ))}
                     </div>
-                    <p className="text-xs text-stone-600 dark:text-stone-300 italic leading-relaxed mb-6">
+                    <p className="text-xs text-stone-700 dark:text-stone-300 italic leading-relaxed mb-6 font-medium">
                       "{t.quote}"
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-3 pt-4 border-t border-stone-200/60 dark:border-stone-700/60">
+                  <div className="flex items-center gap-3 pt-4 border-t border-amber-100 dark:border-stone-700/60">
                     <img
                       src={t.avatar}
                       alt={t.name}
-                      className="w-10 h-10 rounded-full object-cover"
+                      className="w-10.5 h-10.5 rounded-full object-cover border border-amber-300"
                     />
                     <div>
-                      <p className="text-sm font-bold text-stone-900 dark:text-stone-100">
+                      <p className="text-sm font-black text-stone-900 dark:text-stone-100">
                         {t.name}
                       </p>
-                      <p className="text-[11px] text-stone-500">{t.role}</p>
+                      <p className="text-[11px] text-amber-700 dark:text-stone-400 font-semibold">{t.role}</p>
                     </div>
                   </div>
                 </div>
@@ -497,18 +501,18 @@ export default function HomePage() {
       </section>
 
       {/* 6. CALL TO ACTION STRIP */}
-      <section className="py-16 bg-gradient-to-r from-red-600 via-orange-600 to-amber-600 text-white">
+      <section className="py-16 bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white shadow-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
           <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
             Ready for your favorite slice of the day?
           </h2>
-          <p className="text-sm sm:text-base text-red-100 max-w-xl mx-auto">
+          <p className="text-sm sm:text-base text-red-100 max-w-xl mx-auto font-medium">
             Explore authentic dough and wood-fired crusts from your neighborhood's best certified bakeries.
           </p>
           <div className="pt-2">
             <Link
               href="/menu"
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-white text-red-600 font-bold hover:bg-amber-50 shadow-xl transition-all"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-white text-red-600 font-black text-sm hover:bg-amber-50 shadow-2xl transition-all transform hover:scale-105"
             >
               <Pizza className="w-5 h-5" />
               <span>Browse Pizza Menu Now</span>

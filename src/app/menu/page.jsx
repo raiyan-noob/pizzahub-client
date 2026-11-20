@@ -90,7 +90,7 @@ function BrowseMenuContent() {
         </div>
 
         {/* Filter & Search Bar Controls (Challenge 1) */}
-        <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-sm space-y-4">
+        <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-amber-200/70 dark:border-stone-800 shadow-sm space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Search Input */}
             <div className="relative">
@@ -103,7 +103,7 @@ function BrowseMenuContent() {
                   setSearch(e.target.value);
                   setPage(1);
                 }}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-amber-200/80 dark:border-stone-700 bg-amber-50/40 dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500"
               />
             </div>
 
@@ -118,7 +118,7 @@ function BrowseMenuContent() {
                   setLocation(e.target.value);
                   setPage(1);
                 }}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-amber-200/80 dark:border-stone-700 bg-amber-50/40 dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500"
               />
             </div>
 
@@ -131,7 +131,7 @@ function BrowseMenuContent() {
                   setSort(e.target.value);
                   setPage(1);
                 }}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500 appearance-none cursor-pointer"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-amber-200/80 dark:border-stone-700 bg-amber-50/40 dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500 appearance-none cursor-pointer font-medium"
               >
                 <option value="newest">Sort: Newest First</option>
                 <option value="price_asc">Sort: Price: Low to High</option>
@@ -142,7 +142,7 @@ function BrowseMenuContent() {
             {/* Reset Button */}
             <button
               onClick={handleResetFilters}
-              className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-stone-300 dark:border-stone-700 text-sm font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+              className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-amber-200/80 dark:border-stone-700 text-sm font-bold text-stone-700 dark:text-stone-300 hover:bg-amber-100/60 dark:hover:bg-stone-800 transition-colors"
             >
               <RotateCcw className="w-4 h-4 text-stone-500" />
               <span>Reset Filters</span>
@@ -150,7 +150,7 @@ function BrowseMenuContent() {
           </div>
 
           {/* Category Tabs Scroll */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none pt-2 border-t border-stone-100 dark:border-stone-800">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none pt-2 border-t border-amber-100 dark:border-stone-800">
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -158,10 +158,10 @@ function BrowseMenuContent() {
                   setCategory(cat);
                   setPage(1);
                 }}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+                className={`px-4 py-2 rounded-full text-xs font-black tracking-wide whitespace-nowrap transition-all cursor-pointer ${
                   category === cat
-                    ? "bg-red-600 text-white shadow-sm shadow-red-500/20"
-                    : "bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700"
+                    ? "bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white shadow-md shadow-red-500/20"
+                    : "bg-amber-100/60 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-amber-200/60 dark:hover:bg-stone-700"
                 }`}
               >
                 {cat}

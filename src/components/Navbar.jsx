@@ -72,32 +72,32 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/90 dark:bg-stone-900/90 backdrop-blur-md border-b border-amber-100 dark:border-stone-800 transition-colors">
+    <header className="sticky top-0 z-50 w-full bg-amber-50/85 dark:bg-stone-900/90 backdrop-blur-md border-b border-amber-200/70 dark:border-stone-800 shadow-xs shadow-amber-900/5 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-17">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-red-600 to-amber-500 flex items-center justify-center text-white shadow-md shadow-red-500/20 group-hover:scale-105 transition-transform">
-              <Pizza className="w-6 h-6 transform group-hover:rotate-12 transition-transform" />
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-red-600 via-orange-500 to-amber-500 flex items-center justify-center text-white shadow-md shadow-red-500/25 group-hover:scale-105 transition-transform border border-amber-300/30">
+              <Pizza className="w-5.5 h-5.5 transform group-hover:rotate-12 transition-transform" />
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-black tracking-tight bg-gradient-to-r from-red-600 via-orange-600 to-amber-600 bg-clip-text text-transparent">
                 PizzaHub
               </span>
-              <span className="text-[10px] uppercase font-bold tracking-widest text-amber-600/80 dark:text-amber-400/80 -mt-1">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700/80 dark:text-amber-400/80 -mt-1">
                 Artisan Slice
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+          <nav className="hidden md:flex items-center gap-1.5 lg:gap-2">
             <Link
               href="/"
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3.5 py-2 rounded-xl text-sm font-semibold transition-all ${
                 pathname === "/"
-                  ? "text-red-600 dark:text-red-400 font-semibold bg-red-50/60 dark:bg-red-950/30"
-                  : "text-stone-700 dark:text-stone-200 hover:text-red-600 dark:hover:text-red-400"
+                  ? "text-red-600 dark:text-red-400 font-bold bg-amber-100/70 dark:bg-red-950/40 shadow-xs"
+                  : "text-stone-700 dark:text-stone-200 hover:text-red-600 dark:hover:text-red-400 hover:bg-amber-100/40 dark:hover:bg-stone-800"
               }`}
             >
               Home
@@ -105,10 +105,10 @@ export function Navbar() {
 
             <Link
               href="/menu"
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3.5 py-2 rounded-xl text-sm font-semibold transition-all ${
                 pathname.startsWith("/menu")
-                  ? "text-red-600 dark:text-red-400 font-semibold bg-red-50/60 dark:bg-red-950/30"
-                  : "text-stone-700 dark:text-stone-200 hover:text-red-600 dark:hover:text-red-400"
+                  ? "text-red-600 dark:text-red-400 font-bold bg-amber-100/70 dark:bg-red-950/40 shadow-xs"
+                  : "text-stone-700 dark:text-stone-200 hover:text-red-600 dark:hover:text-red-400 hover:bg-amber-100/40 dark:hover:bg-stone-800"
               }`}
             >
               Browse Menu
@@ -117,10 +117,10 @@ export function Navbar() {
             {isAuthenticated && (
               <Link
                 href={getDashboardLink()}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-3.5 py-2 rounded-xl text-sm font-semibold transition-all ${
                   pathname.startsWith("/dashboard")
-                    ? "text-red-600 dark:text-red-400 font-semibold bg-red-50/60 dark:bg-red-950/30"
-                    : "text-stone-700 dark:text-stone-200 hover:text-red-600 dark:hover:text-red-400"
+                    ? "text-red-600 dark:text-red-400 font-bold bg-amber-100/70 dark:bg-red-950/40 shadow-xs"
+                    : "text-stone-700 dark:text-stone-200 hover:text-red-600 dark:hover:text-red-400 hover:bg-amber-100/40 dark:hover:bg-stone-800"
                 }`}
               >
                 Dashboard

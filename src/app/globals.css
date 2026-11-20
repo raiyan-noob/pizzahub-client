@@ -2,66 +2,68 @@
 
 @layer base {
   :root {
-    --background: 40 33% 98%;
-    --foreground: 20 14.3% 4.1%;
+    /* Artisan Light Mode: Warm cream/parchment background, rich tomato red & crust gold */
+    --background: 38 45% 98%;
+    --foreground: 20 20% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 20 14.3% 4.1%;
+    --card-foreground: 20 20% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 20 14.3% 4.1%;
+    --popover-foreground: 20 20% 12%;
 
-    /* Pizza Red & Warm Orange theme */
-    --primary: 12 85% 53%;
+    /* Pizza Red & Warm Cheese Gold */
+    --primary: 6 86% 52%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 32 95% 44%;
+    --secondary: 35 96% 46%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 36 33% 94%;
-    --muted-foreground: 25 5.3% 45%;
+    --muted: 36 30% 95%;
+    --muted-foreground: 24 10% 45%;
 
     --accent: 38 92% 50%;
-    --accent-foreground: 24 9.8% 10%;
+    --accent-foreground: 20 20% 12%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 60 9.1% 97.8%;
 
-    --border: 30 20% 90%;
-    --input: 30 20% 90%;
-    --ring: 12 85% 53%;
+    --border: 34 26% 89%;
+    --input: 34 26% 89%;
+    --ring: 6 86% 52%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
   }
 
   .dark {
-    --background: 20 14.3% 6%;
-    --foreground: 40 33% 98%;
+    /* Sleek Dark Mode: Obsidian stone with glowing pizza red and molten cheese gold accents */
+    --background: 24 12% 7%;
+    --foreground: 38 40% 97%;
 
-    --card: 24 10% 10%;
-    --card-foreground: 40 33% 98%;
+    --card: 24 10% 11%;
+    --card-foreground: 38 40% 97%;
 
-    --popover: 24 10% 10%;
-    --popover-foreground: 40 33% 98%;
+    --popover: 24 10% 11%;
+    --popover-foreground: 38 40% 97%;
 
-    --primary: 14 90% 55%;
+    --primary: 6 90% 56%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 32 95% 48%;
+    --secondary: 35 95% 48%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 24 10% 16%;
-    --muted-foreground: 25 5.3% 65%;
+    --muted-foreground: 25 8% 65%;
 
     --accent: 38 92% 50%;
-    --accent-foreground: 40 33% 98%;
+    --accent-foreground: 38 40% 97%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 60 9.1% 97.8%;
 
     --border: 24 10% 18%;
     --input: 24 10% 18%;
-    --ring: 14 90% 55%;
+    --ring: 6 90% 56%;
   }
 }
 
@@ -69,9 +71,22 @@ body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   font-feature-settings: "rlig" 1, "calt" 1;
+  background-image: radial-gradient(
+    hsla(35, 60%, 80%, 0.15) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
 }
 
-/* Custom scrollbars */
+.dark body {
+  background-image: radial-gradient(
+    hsla(24, 20%, 30%, 0.25) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+}
+
+/* Custom Artisan Scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -80,9 +95,18 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground) / 0.3);
+  background: hsl(var(--muted-foreground) / 0.25);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.5);
+  background: hsl(var(--muted-foreground) / 0.45);
+}
+
+/* Subtle Card Glow */
+.pizza-card-glow {
+  box-shadow: 0 4px 20px -2px rgba(220, 38, 38, 0.06), 0 2px 8px -2px rgba(245, 158, 11, 0.06);
+}
+
+.pizza-card-glow:hover {
+  box-shadow: 0 16px 32px -4px rgba(220, 38, 38, 0.12), 0 6px 16px -2px rgba(245, 158, 11, 0.1);
 }
