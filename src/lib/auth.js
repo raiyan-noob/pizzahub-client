@@ -1,11 +1,21 @@
+import dns from "node:dns";
+try {
+  dns.setServers(["8.8.8.8", "8.8.4.4"]);
+} catch {
+  // DNS fallback
+}
+
 import { betterAuth } from "better-auth";
 import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
 
+const DIRECT_REPLICA_URI =
+  "mongodb://PizzaHub:8hltHVeesJUZtL9F@ac-zgr00ce-shard-00-00.hffrouf.mongodb.net:27017,ac-zgr00ce-shard-00-01.hffrouf.mongodb.net:27017,ac-zgr00ce-shard-00-02.hffrouf.mongodb.net:27017/pizzahub?ssl=true&replicaSet=atlas-97vqqn-shard-0&authSource=admin&retryWrites=true&w=majority";
+
 const uri =
   process.env.MONGODBURI ||
   process.env.MONGODB_URI ||
-  "mongodb+srv://PizzaHub:8hltHVeesJUZtL9F@cluster0.hffrouf.mongodb.net/pizzahub?retryWrites=true&w=majority";
+  DIRECT_REPLICA_URI;
 
 const client = new MongoClient(uri);
 const db = client.db("pizzahub");
