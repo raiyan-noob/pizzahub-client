@@ -1,7 +1,10 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
+    color-scheme: light;
     /* Artisan Light Mode: Warm cream/parchment background, rich tomato red & crust gold */
     --background: 38 45% 98%;
     --foreground: 20 20% 12%;
@@ -36,6 +39,7 @@
   }
 
   .dark {
+    color-scheme: dark;
     /* Sleek Dark Mode: Obsidian stone with glowing pizza red and molten cheese gold accents */
     --background: 24 12% 7%;
     --foreground: 38 40% 97%;

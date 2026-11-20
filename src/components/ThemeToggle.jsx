@@ -5,7 +5,7 @@ import { Moon, Sun, Sparkles } from "lucide-react";
 import { useTheme } from "next-themes";
 
 export function ThemeToggle({ className = "" }) {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
@@ -14,11 +14,11 @@ export function ThemeToggle({ className = "" }) {
 
   if (!mounted) {
     return (
-      <div className={`w-16 h-8 rounded-full bg-amber-100/60 dark:bg-stone-800 border border-amber-200/80 dark:border-stone-700 animate-pulse ${className}`} />
+      <div className={`w-17 h-8.5 rounded-full bg-amber-100/60 dark:bg-stone-800 border border-amber-200/80 dark:border-stone-700 animate-pulse ${className}`} />
     );
   }
 
-  const isDark = theme === "dark";
+  const isDark = (resolvedTheme || theme) === "dark";
 
   return (
     <button

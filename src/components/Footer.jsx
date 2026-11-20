@@ -104,28 +104,33 @@ export function Footer() {
             </h3>
             <ul className="space-y-2.5 text-sm text-stone-400">
               <li>
-                <Link href="/menu?category=Classic+Pizzas" className="hover:text-amber-400 transition-colors">
+                <Link href={`/menu?category=${encodeURIComponent("Classic Pizzas")}`} className="hover:text-amber-400 transition-colors">
                   Classic Pizzas
                 </Link>
               </li>
               <li>
-                <Link href="/menu?category=Vegetarian+Pizzas" className="hover:text-amber-400 transition-colors">
+                <Link href={`/menu?category=${encodeURIComponent("Vegetarian Pizzas")}`} className="hover:text-amber-400 transition-colors">
                   Vegetarian Pizzas
                 </Link>
               </li>
               <li>
-                <Link href="/menu?category=Meat+Lovers" className="hover:text-amber-400 transition-colors">
+                <Link href={`/menu?category=${encodeURIComponent("Meat Lovers")}`} className="hover:text-amber-400 transition-colors">
                   Meat Lovers
                 </Link>
               </li>
               <li>
-                <Link href="/menu?category=Specialty+/+Gourmet+Pizzas" className="hover:text-amber-400 transition-colors">
+                <Link href={`/menu?category=${encodeURIComponent("Specialty / Gourmet Pizzas")}`} className="hover:text-amber-400 transition-colors">
                   Specialty & Gourmet Pizzas
                 </Link>
               </li>
               <li>
-                <Link href="/menu?category=Sides+&+Appetizers" className="hover:text-amber-400 transition-colors">
+                <Link href={`/menu?category=${encodeURIComponent("Sides & Appetizers")}`} className="hover:text-amber-400 transition-colors">
                   Sides & Appetizers
+                </Link>
+              </li>
+              <li>
+                <Link href={`/menu?category=${encodeURIComponent("Beverages & Desserts")}`} className="hover:text-amber-400 transition-colors">
+                  Beverages & Desserts
                 </Link>
               </li>
             </ul>
