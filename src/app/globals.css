@@ -1,26 +1,88 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 40 33% 98%;
+    --foreground: 20 14.3% 4.1%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 20 14.3% 4.1%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 14.3% 4.1%;
+
+    /* Pizza Red & Warm Orange theme */
+    --primary: 12 85% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 32 95% 44%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 36 33% 94%;
+    --muted-foreground: 25 5.3% 45%;
+
+    --accent: 38 92% 50%;
+    --accent-foreground: 24 9.8% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 60 9.1% 97.8%;
+
+    --border: 30 20% 90%;
+    --input: 30 20% 90%;
+    --ring: 12 85% 53%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 20 14.3% 6%;
+    --foreground: 40 33% 98%;
+
+    --card: 24 10% 10%;
+    --card-foreground: 40 33% 98%;
+
+    --popover: 24 10% 10%;
+    --popover-foreground: 40 33% 98%;
+
+    --primary: 14 90% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 32 95% 48%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 24 10% 16%;
+    --muted-foreground: 25 5.3% 65%;
+
+    --accent: 38 92% 50%;
+    --accent-foreground: 40 33% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 60 9.1% 97.8%;
+
+    --border: 24 10% 18%;
+    --input: 24 10% 18%;
+    --ring: 14 90% 55%;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
 }
