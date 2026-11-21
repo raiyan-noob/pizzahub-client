@@ -1,3 +1,4 @@
+import React, { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -33,9 +34,13 @@ export default function RootLayout({ children }) {
       <body className="min-h-full flex flex-col bg-[#faf7f2] dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-sans transition-colors duration-200">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <AuthProvider>
-            <Navbar />
+            <Suspense fallback={<div className="h-20 bg-white/80 dark:bg-stone-900/80" />}>
+              <Navbar />
+            </Suspense>
             <main className="flex-1 flex flex-col">{children}</main>
-            <Footer />
+            <Suspense fallback={null}>
+              <Footer />
+            </Suspense>
             <Toaster position="top-right" richColors closeButton />
           </AuthProvider>
         </ThemeProvider>

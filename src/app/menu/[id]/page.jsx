@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useEffect, useState, use } from "react";
+import React, { useEffect, useState, use, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { apiRequest } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 import { OrderModal } from "@/components/OrderModal";
 import { ReviewModal } from "@/components/ReviewModal";
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { toast } from "sonner";
 import {
   MapPin,
@@ -25,7 +26,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-export default function ItemDetailsPage({ params }) {
+function ItemDetailsContent({ params }) {
   const unwrappedParams = use(params);
   const { id } = unwrappedParams;
 
@@ -493,5 +494,13 @@ export default function ItemDetailsPage({ params }) {
         }}
       />
     </div>
+  );
+}
+
+export default function ItemDetailsPage({ params }) {
+  return (
+    <Suspense fallback={<LoadingScreen message="Loading artisan pizza details..." />}>
+      <ItemDetailsContent params={params} />
+    </Suspense>
   );
 }
