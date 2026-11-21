@@ -51,6 +51,7 @@ function VendorDashboardContent() {
   const [orders, setOrders] = useState([]);
   const [submittingItem, setSubmittingItem] = useState(false);
   const [upgradingStripe, setUpgradingStripe] = useState(false);
+  const [togglingItemId, setTogglingItemId] = useState(null);
 
   // Form states for Add Menu Item
   const [itemName, setItemName] = useState("");
@@ -106,7 +107,7 @@ function VendorDashboardContent() {
   // Statistics Computations
   const totalMenuItems = myItems.length;
   const activeMenuItems = myItems.filter(
-    (item) => item.status === "approved" || item.status === "pending"
+    (item) => item.status === "approved" && item.isActive !== false
   ).length;
   const pendingOrders = orders.filter((o) => o.status === "pending").length;
   const acceptedOrders = orders.filter((o) => o.status === "accepted").length;
@@ -214,20 +215,39 @@ function VendorDashboardContent() {
     }
   };
 
-  // Toggle item availability
+  // Toggle item availability (Active / Inactive) by vendor
+  // Safe: does NOT approve pending or rejected items!
   const handleToggleAvailability = async (item) => {
-    const newStatus = item.status === "inactive" ? "approved" : "inactive";
+    if (togglingItemId === item._id) return;
+
+    const currentActive = item.isActive !== false;
+    const newActive = !currentActive;
+
+    setTogglingItemId(item._id);
+
+    // Optimistic local update for instantaneous UI feedback
+    setMyItems((prev) =>
+      prev.map((it) => (it._id === item._id ? { ...it, isActive: newActive } : it))
+    );
+
     try {
-      const res = await apiRequest(`/api/menu/${item._id}`, {
-        method: "PUT",
-        body: JSON.stringify({ status: newStatus }),
+      const res = await apiRequest(`/api/menu/${item._id}/toggle-active`, {
+        method: "PATCH",
+        body: JSON.stringify({ isActive: newActive }),
       });
       if (res.success) {
-        toast.success(`Item set to ${newStatus}`);
-        loadVendorData();
+        toast.success(res.message || `Item marked as ${newActive ? "Active" : "Inactive"}`);
+      } else {
+        throw new Error(res.message || "Failed to update item availability");
       }
     } catch (err) {
-      toast.error(err.message || "Failed to toggle status");
+      // Rollback on error
+      setMyItems((prev) =>
+        prev.map((it) => (it._id === item._id ? { ...it, isActive: currentActive } : it))
+      );
+      toast.error(err.message || "Failed to update availability");
+    } finally {
+      setTogglingItemId(null);
     }
   };
 
@@ -404,19 +424,33 @@ function VendorDashboardContent() {
                       alt={item.itemName}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-2.5 right-2.5">
+                    <div className="absolute top-2.5 right-2.5 flex flex-col items-end gap-1.5">
                       <span
-                        className={`px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${
+                        className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-xs flex items-center gap-1 ${
                           item.status === "approved"
                             ? "bg-emerald-500 text-white"
                             : item.status === "pending"
                             ? "bg-amber-500 text-stone-950"
-                            : item.status === "rejected"
-                            ? "bg-red-600 text-white"
-                            : "bg-stone-500 text-white"
+                            : "bg-red-600 text-white"
                         }`}
                       >
-                        {item.status}
+                        {item.status === "approved" && <CheckCircle2 className="w-3 h-3" />}
+                        {item.status === "pending" && <Clock className="w-3 h-3" />}
+                        {item.status === "rejected" && <XCircle className="w-3 h-3" />}
+                        {item.status === "approved"
+                          ? "Approved"
+                          : item.status === "pending"
+                          ? "Pending Approval"
+                          : "Rejected"}
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 rounded-md text-[10px] font-bold shadow-xs ${
+                          item.isActive !== false
+                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300/60"
+                            : "bg-stone-200 text-stone-700 dark:bg-stone-800 dark:text-stone-300 border border-stone-300 dark:border-stone-700"
+                        }`}
+                      >
+                        {item.isActive !== false ? "Active" : "Inactive"}
                       </span>
                     </div>
                   </div>
@@ -437,14 +471,47 @@ function VendorDashboardContent() {
                           </span>
                         )}
                       </div>
+
+                      {item.status === "pending" && (
+                        <p className="text-[11px] font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-2.5 py-1 rounded-lg border border-amber-200/80 dark:border-amber-800/60 mt-2.5 flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 shrink-0" />
+                          <span>Pending Admin Approval before visible to customers</span>
+                        </p>
+                      )}
+                      {item.status === "approved" && item.isActive === false && (
+                        <p className="text-[11px] font-medium text-stone-500 bg-stone-100 dark:bg-stone-850 px-2.5 py-1 rounded-lg border border-stone-200 dark:border-stone-700 mt-2.5">
+                          Temporarily Inactive (hidden from customers)
+                        </p>
+                      )}
                     </div>
 
                     <div className="pt-4 mt-4 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between">
                       <button
+                        type="button"
+                        disabled={togglingItemId === item._id}
                         onClick={() => handleToggleAvailability(item)}
-                        className="text-xs font-bold text-stone-600 dark:text-stone-300 hover:text-amber-600"
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer disabled:opacity-60 ${
+                          item.isActive !== false
+                            ? "bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-750 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700"
+                            : "bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
+                        }`}
                       >
-                        {item.status === "inactive" ? "Set Active" : "Set Inactive"}
+                        {togglingItemId === item._id ? (
+                          <>
+                            <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                            <span>Updating...</span>
+                          </>
+                        ) : item.isActive !== false ? (
+                          <>
+                            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                            <span>Set Inactive</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="w-2 h-2 rounded-full bg-stone-400" />
+                            <span>Set Active</span>
+                          </>
+                        )}
                       </button>
 
                       <button
