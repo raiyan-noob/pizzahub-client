@@ -56,9 +56,25 @@ export async function syncUserToken(user) {
 }
 
 export async function apiRequest(endpoint, options = {}) {
-  const url = `${API_BASE_URL}${endpoint}`;
-  const token = getAuthToken();
+  let token = getAuthToken();
 
+  // 1. Auto-recover token if missing on client side
+  if (!token && typeof window !== "undefined") {
+    try {
+      const { authClient } = await import("@/lib/auth-client");
+      const sessionRes = await authClient.getSession();
+      if (sessionRes?.data?.user) {
+        const syncRes = await syncUserToken(sessionRes.data.user);
+        if (syncRes?.token) {
+          token = syncRes.token;
+        }
+      }
+    } catch {
+      // Non-blocking auto-recovery
+    }
+  }
+
+  const url = `${API_BASE_URL}${endpoint}`;
   const headers = {
     "Content-Type": "application/json",
     ...options.headers,
@@ -68,10 +84,29 @@ export async function apiRequest(endpoint, options = {}) {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(url, {
+  let response = await fetch(url, {
     ...options,
     headers,
   });
+
+  // 2. Auto-retry once on 401 Unauthorized if token was invalid/expired
+  if (response.status === 401 && typeof window !== "undefined" && !options._retried) {
+    try {
+      const { authClient } = await import("@/lib/auth-client");
+      const sessionRes = await authClient.getSession();
+      if (sessionRes?.data?.user) {
+        const syncRes = await syncUserToken(sessionRes.data.user);
+        if (syncRes?.token) {
+          return await apiRequest(endpoint, {
+            ...options,
+            _retried: true,
+          });
+        }
+      }
+    } catch {
+      // Retry failed
+    }
+  }
 
   const data = await response.json().catch(() => ({
     success: false,

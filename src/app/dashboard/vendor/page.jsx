@@ -1,9 +1,12 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+export const instant = false;
+
 import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { apiRequest } from "@/lib/api";
+import { apiRequest, getAuthToken, syncUserToken } from "@/lib/api";
 import { uploadToImgBB } from "@/lib/imgbb";
 import { formatPrice } from "@/lib/utils";
 import { toast } from "sonner";
@@ -98,8 +101,10 @@ function VendorDashboardContent() {
   }, []);
 
   useEffect(() => {
-    loadVendorData();
-  }, [loadVendorData]);
+    if (user) {
+      loadVendorData();
+    }
+  }, [user, loadVendorData]);
 
   // Statistics Computations
   const totalMenuItems = myItems.length;
@@ -171,6 +176,10 @@ function VendorDashboardContent() {
 
     setSubmittingItem(true);
     try {
+      if (!getAuthToken() && user) {
+        await syncUserToken(user);
+      }
+
       const res = await apiRequest("/api/menu", {
         method: "POST",
         body: JSON.stringify({

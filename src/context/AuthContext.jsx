@@ -91,6 +91,15 @@ export function AuthProvider({ children }) {
               address: session.user.address || "",
               phone: session.user.phone || "",
             });
+            // Background retry in case the backend server was starting up
+            setTimeout(async () => {
+              if (mounted && !getAuthToken()) {
+                const retrySync = await syncUserToken(session.user);
+                if (retrySync?.user && mounted) {
+                  setUser(retrySync.user);
+                }
+              }
+            }, 1500);
           }
         } catch (e) {
           console.error("Auth init error:", e);
@@ -134,6 +143,19 @@ export function AuthProvider({ children }) {
       mounted = false;
     };
   }, [session, sessionLoading]);
+
+  useEffect(() => {
+    const handleFocus = async () => {
+      if (session?.user && !getAuthToken()) {
+        const syncRes = await syncUserToken(session.user);
+        if (syncRes?.user) setUser(syncRes.user);
+      }
+    };
+    if (typeof window !== "undefined") {
+      window.addEventListener("focus", handleFocus);
+      return () => window.removeEventListener("focus", handleFocus);
+    }
+  }, [session]);
 
   const handleLogin = async (email, password) => {
     setLoading(true);
