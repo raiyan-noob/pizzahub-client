@@ -13,6 +13,7 @@ import {
   Pizza,
   RotateCcw,
   Sparkles,
+  X,
 } from "lucide-react";
 
 function BrowseMenuContent() {
@@ -38,6 +39,28 @@ function BrowseMenuContent() {
   useEffect(() => {
     setLocationInput(currentLocation);
   }, [currentLocation]);
+
+  // Live debounced search as user types (no Enter key required)
+  useEffect(() => {
+    if (searchInput.trim() === currentSearch.trim()) return;
+
+    const timer = setTimeout(() => {
+      updateUrlParams({ search: searchInput.trim(), page: "1" });
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [searchInput, currentSearch, updateUrlParams]);
+
+  // Live debounced location filter as user types
+  useEffect(() => {
+    if (locationInput.trim() === currentLocation.trim()) return;
+
+    const timer = setTimeout(() => {
+      updateUrlParams({ location: locationInput.trim(), page: "1" });
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [locationInput, currentLocation, updateUrlParams]);
 
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -145,30 +168,54 @@ function BrowseMenuContent() {
         {/* Filter & Search Bar Controls (Challenge 1 - Synced with URL) */}
         <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-amber-200/70 dark:border-stone-800 shadow-sm space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Search Input (Form submit / Enter key triggers search & URL update) */}
+            {/* Search Input (Live auto-search + clear button) */}
             <form onSubmit={handleSearchSubmit} className="relative">
-              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Search pizzas... (Press Enter)"
+                placeholder="Search pizzas by name, crust, topping..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                onBlur={() => updateUrlParams({ search: searchInput.trim(), page: "1" })}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-amber-200/80 dark:border-stone-700 bg-amber-50/40 dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500 font-medium"
+                className="w-full pl-10 pr-9 py-2.5 rounded-xl border border-amber-200/80 dark:border-stone-700 bg-amber-50/40 dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500 font-medium"
               />
+              {searchInput && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchInput("");
+                    updateUrlParams({ search: "", page: "1" });
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer p-0.5"
+                  aria-label="Clear search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </form>
 
-            {/* Location Filter */}
+            {/* Location Filter (Live auto-filter + clear button) */}
             <form onSubmit={handleLocationSubmit} className="relative">
-              <MapPin className="w-4 h-4 text-red-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <MapPin className="w-4 h-4 text-red-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Filter city / area... (Press Enter)"
+                placeholder="Filter by city / area..."
                 value={locationInput}
                 onChange={(e) => setLocationInput(e.target.value)}
-                onBlur={() => updateUrlParams({ location: locationInput.trim(), page: "1" })}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-amber-200/80 dark:border-stone-700 bg-amber-50/40 dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500 font-medium"
+                className="w-full pl-10 pr-9 py-2.5 rounded-xl border border-amber-200/80 dark:border-stone-700 bg-amber-50/40 dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500 font-medium"
               />
+              {locationInput && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLocationInput("");
+                    updateUrlParams({ location: "", page: "1" });
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer p-0.5"
+                  aria-label="Clear location filter"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </form>
 
             {/* Price Sorting Selector (Challenge 1 Requirement) */}
