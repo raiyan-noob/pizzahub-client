@@ -58,12 +58,12 @@ export default function SignUpPage() {
 
     setUploadingImage(true);
     try {
-      toast.loading("Uploading profile image to ImgBB...", { id: "imgbb-upload" });
+      toast.loading("Uploading image...", { id: "image-upload" });
       const imageUrl = await uploadToImgBB(file);
       setProfileImage(imageUrl);
-      toast.success("Profile image uploaded!", { id: "imgbb-upload" });
+      toast.success("Image uploaded successfully!", { id: "image-upload" });
     } catch (err) {
-      toast.error(err.message || "Failed to upload image", { id: "imgbb-upload" });
+      toast.error(err.message || "Failed to upload image", { id: "image-upload" });
     } finally {
       setUploadingImage(false);
     }

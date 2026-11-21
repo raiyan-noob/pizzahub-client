@@ -96,7 +96,7 @@ export default function ProfileSettingsPage() {
 
     setUploadingImage(true);
     try {
-      toast.loading("Uploading photo to ImgBB...", { id: "profile-upload" });
+      toast.loading("Uploading image...", { id: "profile-upload" });
       const url = await uploadToImgBB(file);
       setImage(url);
       toast.success("Profile photo uploaded!", { id: "profile-upload" });
@@ -342,11 +342,11 @@ export default function ProfileSettingsPage() {
                   </div>
 
                   <div className="space-y-4">
-                    {/* Profile Image Upload (ImgBB) */}
+                    {/* Profile Image Upload */}
                     <div>
                       <label className="block text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400 mb-1.5 flex items-center gap-1.5">
                         <Upload className="w-3.5 h-3.5 text-amber-500" />
-                        Update Profile Image (ImgBB)
+                        Update Profile Image
                       </label>
                       <div className="flex items-center gap-3">
                         {image ? (

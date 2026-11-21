@@ -118,12 +118,12 @@ function VendorDashboardContent() {
 
     setUploadingImage(true);
     try {
-      toast.loading("Uploading menu image to ImgBB...", { id: "imgbb-item" });
+      toast.loading("Uploading image...", { id: "menu-item-upload" });
       const url = await uploadToImgBB(file);
       setItemImages([...itemImages, url]);
-      toast.success("Image uploaded successfully!", { id: "imgbb-item" });
+      toast.success("Image uploaded successfully!", { id: "menu-item-upload" });
     } catch (err) {
-      toast.error(err.message || "Failed to upload image", { id: "imgbb-item" });
+      toast.error(err.message || "Failed to upload image", { id: "menu-item-upload" });
     } finally {
       setUploadingImage(false);
     }
@@ -134,7 +134,7 @@ function VendorDashboardContent() {
     e.preventDefault();
 
     if (itemImages.length === 0) {
-      toast.error("At least one menu item image is required (upload using ImgBB)");
+      toast.error("At least one menu item image is required");
       return;
     }
 
@@ -525,11 +525,11 @@ function VendorDashboardContent() {
               />
             </div>
 
-            {/* ImgBB Required Image Upload (Page 5 Requirement) */}
+            {/* Required Image Upload */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400 mb-1.5 flex items-center gap-1.5">
                 <Upload className="w-3.5 h-3.5 text-amber-500" />
-                Upload Item Image via ImgBB *
+                Upload Item Image *
               </label>
               <input
                 type="file"
