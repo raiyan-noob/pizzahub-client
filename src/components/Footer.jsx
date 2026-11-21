@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Pizza, MapPin, Phone, Mail, Heart } from "lucide-react";
 
 // Modern X Logo SVG (per PDF requirement: "Use the new X logo instead of the old Twitter bird")
@@ -19,6 +20,13 @@ function XLogo({ className = "w-4 h-4" }) {
 }
 
 export function Footer() {
+  const pathname = usePathname();
+
+  // Dashboard layout requirement: only sidebar, no navbar and footer
+  if (pathname?.startsWith("/dashboard")) {
+    return null;
+  }
+
   return (
     <footer className="w-full bg-stone-900 text-stone-300 border-t border-stone-800 pt-16 pb-12 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -43,6 +43,11 @@ export function Navbar() {
     setDropdownOpen(false);
   }, [pathname]);
 
+  // Dashboard layout requirement: only sidebar, no navbar and footer
+  if (pathname?.startsWith("/dashboard")) {
+    return null;
+  }
+
   const getDashboardLink = () => {
     if (role === "admin") return "/dashboard/admin";
     if (role === "vendor") return "/dashboard/vendor";

@@ -21,7 +21,9 @@ import {
   Store,
   Heart,
   ChevronRight,
+  ArrowLeft,
 } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { toast } from "sonner";
 
 export default function DashboardLayout({ children }) {
@@ -99,20 +101,23 @@ export default function DashboardLayout({ children }) {
     <div className="min-h-screen flex flex-col md:flex-row bg-stone-100/70 dark:bg-stone-950">
       {/* Mobile Header Bar */}
       <div className="md:hidden flex items-center justify-between p-4 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-red-600 flex items-center justify-center text-white">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-red-600 to-amber-500 flex items-center justify-center text-white shadow-xs">
             <Pizza className="w-5 h-5" />
           </div>
           <span className="font-bold text-stone-900 dark:text-stone-100 capitalize">
             {role} Dashboard
           </span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="p-2 rounded-xl text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800"
+          >
+            {mobileOpen ? <X className="w-5 h-5" /> : <MenuIcon className="w-5 h-5" />}
+          </button>
         </div>
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-2 rounded-xl text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800"
-        >
-          {mobileOpen ? <X className="w-5 h-5" /> : <MenuIcon className="w-5 h-5" />}
-        </button>
       </div>
 
       {/* Sidebar Navigation */}
@@ -122,6 +127,24 @@ export default function DashboardLayout({ children }) {
         }`}
       >
         <div className="p-6">
+          {/* Brand Header & Theme Switcher in Sidebar */}
+          <div className="flex items-center justify-between pb-5 mb-5 border-b border-stone-200/80 dark:border-stone-800">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-red-600 via-orange-500 to-amber-500 flex items-center justify-center text-white shadow-md shadow-red-500/20 group-hover:scale-105 transition-transform">
+                <Pizza className="w-5 h-5" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-lg font-black tracking-tight bg-gradient-to-r from-red-600 to-amber-600 bg-clip-text text-transparent">
+                  PizzaHub
+                </span>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-stone-400">
+                  {role} Portal
+                </span>
+              </div>
+            </Link>
+            <ThemeToggle />
+          </div>
+
           {/* User Profile Card in Sidebar (Page 11) */}
           <div className="flex items-center gap-3 p-3 rounded-2xl bg-amber-50/60 dark:bg-stone-800/60 border border-amber-200/50 dark:border-stone-700/50 mb-6">
             {user?.image ? (
@@ -180,14 +203,21 @@ export default function DashboardLayout({ children }) {
           </nav>
         </div>
 
-        {/* Bottom Sidebar Action: Logout */}
-        <div className="p-4 border-t border-stone-100 dark:border-stone-800">
+        {/* Bottom Sidebar Action: Back to Site & Logout */}
+        <div className="p-4 border-t border-stone-200/80 dark:border-stone-800 space-y-1">
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 text-stone-400" />
+            <span>Back to Main Site</span>
+          </Link>
           <button
             onClick={() => {
               setMobileOpen(false);
               logout();
             }}
-            className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
+            className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
             <span>Sign Out</span>
