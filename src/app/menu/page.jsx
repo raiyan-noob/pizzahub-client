@@ -31,6 +31,23 @@ function BrowseMenuContent() {
   const [searchInput, setSearchInput] = useState(currentSearch);
   const [locationInput, setLocationInput] = useState(currentLocation);
 
+  // Helper to synchronize all filter states into URL SearchParams
+  const updateUrlParams = useCallback(
+    (newParams) => {
+      const params = new URLSearchParams(searchParams.toString());
+      Object.entries(newParams).forEach(([key, val]) => {
+        if (val === undefined || val === null || val === "" || val === "All") {
+          params.delete(key);
+        } else {
+          params.set(key, val);
+        }
+      });
+      const queryString = params.toString();
+      router.replace(queryString ? `/menu?${queryString}` : "/menu", { scroll: false });
+    },
+    [searchParams, router]
+  );
+
   // Sync local inputs when URL searchParams change
   useEffect(() => {
     setSearchInput(currentSearch);
@@ -76,23 +93,6 @@ function BrowseMenuContent() {
     "Sides & Appetizers",
     "Beverages & Desserts",
   ];
-
-  // Helper to synchronize all filter states into URL SearchParams
-  const updateUrlParams = useCallback(
-    (newParams) => {
-      const params = new URLSearchParams(searchParams.toString());
-      Object.entries(newParams).forEach(([key, val]) => {
-        if (val === undefined || val === null || val === "" || val === "All") {
-          params.delete(key);
-        } else {
-          params.set(key, val);
-        }
-      });
-      const queryString = params.toString();
-      router.replace(queryString ? `/menu?${queryString}` : "/menu", { scroll: false });
-    },
-    [searchParams, router]
-  );
 
   // Fetch Menu Items from API whenever searchParams change
   const fetchMenuItems = useCallback(async () => {

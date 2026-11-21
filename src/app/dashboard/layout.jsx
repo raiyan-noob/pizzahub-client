@@ -67,6 +67,7 @@ function DashboardLayoutContent({ children }) {
     if (role === "admin") {
       return [
         { name: "Overview", href: "/dashboard/admin", icon: LayoutDashboard },
+        { name: "Platform Orders", href: "/dashboard/admin?tab=orders", icon: ShoppingBag },
         { name: "Manage Users", href: "/dashboard/admin?tab=users", icon: Users },
         { name: "Manage Menu Items", href: "/dashboard/admin?tab=menu", icon: UtensilsCrossed },
         { name: "Transactions Ledger", href: "/dashboard/admin?tab=transactions", icon: Receipt },

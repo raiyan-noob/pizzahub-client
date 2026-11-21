@@ -54,6 +54,7 @@ function VendorDashboardContent() {
   const [upgradingStripe, setUpgradingStripe] = useState(false);
   const [togglingItemId, setTogglingItemId] = useState(null);
   const [orderActionLoading, setOrderActionLoading] = useState(null);
+  const [orderStatusFilter, setOrderStatusFilter] = useState("all");
 
   // Form states for Add Menu Item
   const [itemName, setItemName] = useState("");
@@ -113,13 +114,15 @@ function VendorDashboardContent() {
   ).length;
   const pendingOrders = orders.filter((o) => o.status === "pending").length;
   const acceptedOrders = orders.filter((o) => o.status === "accepted").length;
+  const deliveredOrders = orders.filter((o) => o.status === "delivered").length;
   const rejectedOrders = orders.filter((o) => o.status === "rejected").length;
   const isPremium = user?.subscriptionPlan === "premium";
 
   // Chart Data
   const chartData = [
     { name: "Pending", count: pendingOrders, fill: "#f59e0b" },
-    { name: "Accepted", count: acceptedOrders, fill: "#10b981" },
+    { name: "Accepted", count: acceptedOrders, fill: "#3b82f6" },
+    { name: "Delivered", count: deliveredOrders, fill: "#10b981" },
     { name: "Rejected", count: rejectedOrders, fill: "#ef4444" },
     { name: "Active Items", count: activeMenuItems, fill: "#dc2626" },
   ];
@@ -274,11 +277,16 @@ function VendorDashboardContent() {
     }
   };
 
-  // Accept or Reject Customer Order (Vendor action)
+  // Accept, Reject, or Deliver Customer Order (Vendor action)
   const handleOrderAction = async (orderId, action) => {
     const loadingKey = `${orderId}-${action}`;
     setOrderActionLoading(loadingKey);
-    const actionLabel = action === "accepted" ? "Accepting" : "Rejecting";
+    const actionLabel =
+      action === "delivered"
+        ? "Marking as delivered"
+        : action === "accepted"
+        ? "Accepting"
+        : "Rejecting";
     toast.loading(`${actionLabel} order...`, { id: `order-${orderId}` });
 
     try {
@@ -287,7 +295,7 @@ function VendorDashboardContent() {
         body: JSON.stringify({ action }),
       });
       if (res.success) {
-        toast.success(res.message || `Order ${action} successfully!`, { id: `order-${orderId}` });
+        toast.success(res.message || `Order updated to ${action}!`, { id: `order-${orderId}` });
         // Optimistically update order status in local state
         setOrders((prev) =>
           prev.map((o) => (o._id === orderId ? { ...o, status: action } : o))
@@ -295,7 +303,7 @@ function VendorDashboardContent() {
         loadVendorData();
       }
     } catch (err) {
-      toast.error(err.message || `Failed to ${action} order`, { id: `order-${orderId}` });
+      toast.error(err.message || `Failed to update order`, { id: `order-${orderId}` });
     } finally {
       setOrderActionLoading(null);
     }
@@ -333,8 +341,8 @@ function VendorDashboardContent() {
             </p>
           </div>
 
-          {/* 5 Required Overview Stats Cards (Page 5) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {/* 6 Required Overview Stats Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
             <div className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-xs">
               <span className="text-xs uppercase font-bold text-stone-400">Total Menu Items</span>
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100 mt-1">
@@ -353,14 +361,21 @@ function VendorDashboardContent() {
             </div>
 
             <div className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-xs">
-              <span className="text-xs uppercase font-bold text-stone-400">Pending Orders</span>
+              <span className="text-xs uppercase font-bold text-amber-500">Pending Orders</span>
               <p className="text-2xl font-black text-amber-500 mt-1">{pendingOrders}</p>
             </div>
 
             <div className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-xs">
-              <span className="text-xs uppercase font-bold text-stone-400">Accepted Orders</span>
+              <span className="text-xs uppercase font-bold text-blue-500">Accepted Orders</span>
               <p className="text-2xl font-black text-blue-600 dark:text-blue-400 mt-1">
                 {acceptedOrders}
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-xs">
+              <span className="text-xs uppercase font-bold text-emerald-600 dark:text-emerald-400">Delivered Orders</span>
+              <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
+                {deliveredOrders}
               </p>
             </div>
 
@@ -794,18 +809,58 @@ function VendorDashboardContent() {
       {/* Customer Orders Tab */}
       {activeTab === "orders" && (
         <div className="space-y-6">
-          <div>
-            <h1 className="text-2xl font-black text-stone-900 dark:text-stone-100">
-              Customer Orders
-            </h1>
-            <p className="text-xs text-stone-500">
-              Incoming food orders submitted by customers. Review and accept or reject pending orders.
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-black text-stone-900 dark:text-stone-100">
+                Customer Orders
+              </h1>
+              <p className="text-xs text-stone-500">
+                Incoming food orders submitted by customers. Review, accept/reject, and mark fulfilled orders as delivered.
+              </p>
+            </div>
+
+            {/* Quick Status Filter Tabs */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+              {[
+                { id: "all", label: "All", count: orders.length },
+                { id: "pending", label: "Pending", count: pendingOrders },
+                { id: "accepted", label: "Accepted", count: acceptedOrders },
+                { id: "delivered", label: "Delivered", count: deliveredOrders },
+                { id: "rejected", label: "Rejected", count: rejectedOrders },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setOrderStatusFilter(tab.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                    orderStatusFilter === tab.id
+                      ? "bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs"
+                      : "bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800"
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  <span
+                    className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                      orderStatusFilter === tab.id
+                        ? "bg-white/20 text-white dark:bg-stone-900/20 dark:text-stone-900"
+                        : "bg-stone-100 dark:bg-stone-800 text-stone-500"
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {orders.length > 0 ? (
             <div className="space-y-4">
-              {orders.map((order) => (
+              {orders
+                .filter((order) => {
+                  if (orderStatusFilter === "all") return true;
+                  return order.status === orderStatusFilter;
+                })
+                .map((order) => (
                 <div
                   key={order._id}
                   className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6"
@@ -828,11 +883,13 @@ function VendorDashboardContent() {
                         </h4>
                         <span
                           className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                            order.status === "accepted"
-                              ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300"
+                            order.status === "delivered"
+                              ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-300/40"
+                              : order.status === "accepted"
+                              ? "bg-blue-100 text-blue-800 dark:bg-blue-950/70 dark:text-blue-300 border border-blue-300/40"
                               : order.status === "pending"
-                              ? "bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300"
-                              : "bg-red-100 text-red-800 dark:bg-red-950/70 dark:text-red-300"
+                              ? "bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-300/40"
+                              : "bg-red-100 text-red-800 dark:bg-red-950/70 dark:text-red-300 border border-red-300/40"
                           }`}
                         >
                           {order.status}
@@ -859,14 +916,14 @@ function VendorDashboardContent() {
                     </div>
                   </div>
 
-                  {/* Actions (Only pending orders can be accepted/rejected, and only once!) */}
+                  {/* Actions */}
                   {order.status === "pending" ? (
                     <div className="flex items-center gap-2.5 w-full lg:w-auto">
                       <button
                         type="button"
                         disabled={!!orderActionLoading}
                         onClick={() => handleOrderAction(order._id, "accepted")}
-                        className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
+                        className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
                       >
                         {orderActionLoading === `${order._id}-accepted` ? (
                           <>
@@ -899,9 +956,39 @@ function VendorDashboardContent() {
                         )}
                       </button>
                     </div>
+                  ) : order.status === "accepted" ? (
+                    <div className="flex items-center gap-2.5 w-full lg:w-auto">
+                      <button
+                        type="button"
+                        disabled={!!orderActionLoading}
+                        onClick={() => handleOrderAction(order._id, "delivered")}
+                        className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition-all cursor-pointer"
+                      >
+                        {orderActionLoading === `${order._id}-delivered` ? (
+                          <>
+                            <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <span>Marking Delivered...</span>
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle2 className="w-4 h-4" />
+                            <span>Mark as Delivered</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   ) : (
-                    <div className="text-xs font-semibold text-stone-400 capitalize">
-                      Order {order.status}
+                    <div className="text-xs font-semibold text-stone-400 capitalize flex items-center gap-1.5">
+                      {order.status === "delivered" ? (
+                        <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300/50 dark:border-emerald-800">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                          <span>Delivered to Customer</span>
+                        </span>
+                      ) : order.status === "cancelled" ? (
+                        <span className="text-stone-400">Cancelled by customer</span>
+                      ) : (
+                        <span>Order {order.status}</span>
+                      )}
                     </div>
                   )}
                 </div>

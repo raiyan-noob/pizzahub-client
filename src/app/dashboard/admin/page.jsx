@@ -17,12 +17,16 @@ import {
   ShieldAlert,
   Search,
   CheckCircle,
+  CheckCircle2,
   XCircle,
   Trash2,
   Lock,
   Unlock,
   Store,
   TrendingUp,
+  ShoppingBag,
+  Calendar,
+  MapPin,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -56,6 +60,11 @@ function AdminDashboardContent() {
   // Transactions state
   const [transactionsList, setTransactionsList] = useState([]);
 
+  // Platform Orders state
+  const [ordersList, setOrdersList] = useState([]);
+  const [orderSearch, setOrderSearch] = useState("");
+  const [orderStatusFilter, setOrderStatusFilter] = useState("all");
+
   // Fetch Stats
   const loadStats = useCallback(async () => {
     try {
@@ -63,6 +72,16 @@ function AdminDashboardContent() {
       if (res.success) setStats(res.stats);
     } catch (err) {
       console.error("Fetch admin stats error:", err);
+    }
+  }, []);
+
+  // Fetch Orders
+  const loadOrders = useCallback(async () => {
+    try {
+      const res = await apiRequest("/api/orders/admin");
+      if (res.success) setOrdersList(res.data || []);
+    } catch (err) {
+      console.error("Fetch admin orders error:", err);
     }
   }, []);
 
@@ -104,10 +123,16 @@ function AdminDashboardContent() {
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([loadStats(), loadUsers(), loadMenuItems(), loadTransactions()]).finally(() => {
+    Promise.all([
+      loadStats(),
+      loadUsers(),
+      loadMenuItems(),
+      loadTransactions(),
+      loadOrders(),
+    ]).finally(() => {
       setLoading(false);
     });
-  }, [loadStats, loadUsers, loadMenuItems, loadTransactions]);
+  }, [loadStats, loadUsers, loadMenuItems, loadTransactions, loadOrders]);
 
   const [userToBlock, setUserToBlock] = useState(null);
   const [blockingUser, setBlockingUser] = useState(false);
@@ -180,6 +205,7 @@ function AdminDashboardContent() {
     { name: "Customers", count: stats?.totalCustomers || 0, fill: "#10b981" },
     { name: "Menu Items", count: stats?.totalMenuItems || 0, fill: "#dc2626" },
     { name: "Pending Approval", count: stats?.pendingMenuItems || 0, fill: "#ec4899" },
+    { name: "Delivered Orders", count: stats?.orderStatusCounts?.delivered || 0, fill: "#059669" },
   ];
 
   return (
@@ -244,6 +270,59 @@ function AdminDashboardContent() {
             </div>
           </div>
 
+          {/* Platform Order Fulfillment Live Metrics */}
+          <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                  <ShoppingBag className="w-5 h-5 text-red-500" />
+                  <span>Platform Order Fulfillment Status</span>
+                </h3>
+                <p className="text-xs text-stone-500">
+                  Real-time status tracking of all customer pizza orders across registered restaurants.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/40">
+                <span className="text-[11px] font-bold uppercase text-amber-700 dark:text-amber-400">
+                  Pending Review
+                </span>
+                <p className="text-2xl font-black text-amber-800 dark:text-amber-300 mt-1">
+                  {stats?.orderStatusCounts?.pending || 0}
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-900/40">
+                <span className="text-[11px] font-bold uppercase text-blue-700 dark:text-blue-400">
+                  Accepted & Baking
+                </span>
+                <p className="text-2xl font-black text-blue-800 dark:text-blue-300 mt-1">
+                  {stats?.orderStatusCounts?.accepted || 0}
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-900/40">
+                <span className="text-[11px] font-bold uppercase text-emerald-700 dark:text-emerald-400">
+                  Delivered Orders
+                </span>
+                <p className="text-2xl font-black text-emerald-800 dark:text-emerald-300 mt-1">
+                  {stats?.orderStatusCounts?.delivered || 0}
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-stone-100 dark:bg-stone-800/50 border border-stone-200 dark:border-stone-700">
+                <span className="text-[11px] font-bold uppercase text-stone-600 dark:text-stone-400">
+                  Cancelled / Rejected
+                </span>
+                <p className="text-2xl font-black text-stone-700 dark:text-stone-300 mt-1">
+                  {(stats?.orderStatusCounts?.cancelled || 0) + (stats?.orderStatusCounts?.rejected || 0)}
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Platform Visualization Chart (Page 11) */}
           <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-sm">
             <h3 className="text-base font-bold text-stone-900 dark:text-stone-100 mb-4">
@@ -259,6 +338,177 @@ function AdminDashboardContent() {
                   <Bar dataKey="count" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Platform Orders Tab */}
+      {activeTab === "orders" && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-black text-stone-900 dark:text-stone-100">
+                Platform Customer Orders
+              </h1>
+              <p className="text-xs text-stone-500">
+                Live oversight of all artisan pizza orders across all restaurants and customers.
+              </p>
+            </div>
+
+            {/* Quick Status Filters */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+              {[
+                { id: "all", label: "All Orders", count: ordersList.length },
+                { id: "pending", label: "Pending", count: ordersList.filter((o) => o.status === "pending").length },
+                { id: "accepted", label: "Baking", count: ordersList.filter((o) => o.status === "accepted").length },
+                { id: "delivered", label: "Delivered", count: ordersList.filter((o) => o.status === "delivered").length },
+                { id: "rejected", label: "Rejected", count: ordersList.filter((o) => o.status === "rejected").length },
+                { id: "cancelled", label: "Cancelled", count: ordersList.filter((o) => o.status === "cancelled").length },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setOrderStatusFilter(tab.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                    orderStatusFilter === tab.id
+                      ? "bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs"
+                      : "bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800"
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  <span
+                    className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                      orderStatusFilter === tab.id
+                        ? "bg-white/20 text-white dark:bg-stone-900/20 dark:text-stone-900"
+                        : "bg-stone-100 dark:bg-stone-800 text-stone-500"
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Search by pizza name, customer name, email, or pizzeria..."
+              value={orderSearch}
+              onChange={(e) => setOrderSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 text-sm focus:outline-hidden"
+            />
+          </div>
+
+          {/* Orders Table */}
+          <div className="rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 overflow-hidden shadow-xs">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-stone-50 dark:bg-stone-800/60 uppercase tracking-wider text-stone-500 font-bold border-b border-stone-200 dark:border-stone-800">
+                  <tr>
+                    <th className="p-4">Pizza Item</th>
+                    <th className="p-4">Customer</th>
+                    <th className="p-4">Pizzeria / Vendor</th>
+                    <th className="p-4">Delivery Info</th>
+                    <th className="p-4">Total</th>
+                    <th className="p-4">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
+                  {ordersList.filter((o) => {
+                    if (orderStatusFilter !== "all" && o.status !== orderStatusFilter) return false;
+                    if (!orderSearch.trim()) return true;
+                    const q = orderSearch.toLowerCase();
+                    return (
+                      o.itemName?.toLowerCase().includes(q) ||
+                      o.customer?.name?.toLowerCase().includes(q) ||
+                      o.customer?.email?.toLowerCase().includes(q) ||
+                      o.vendor?.name?.toLowerCase().includes(q)
+                    );
+                  }).length > 0 ? (
+                    ordersList
+                      .filter((o) => {
+                        if (orderStatusFilter !== "all" && o.status !== orderStatusFilter) return false;
+                        if (!orderSearch.trim()) return true;
+                        const q = orderSearch.toLowerCase();
+                        return (
+                          o.itemName?.toLowerCase().includes(q) ||
+                          o.customer?.name?.toLowerCase().includes(q) ||
+                          o.customer?.email?.toLowerCase().includes(q) ||
+                          o.vendor?.name?.toLowerCase().includes(q)
+                        );
+                      })
+                      .map((o) => (
+                        <tr key={o._id} className="hover:bg-stone-50/50 dark:hover:bg-stone-800/40">
+                          <td className="p-4">
+                            <div className="flex items-center gap-3">
+                              <img
+                                src={o.item?.images?.[0] || o.itemImage || "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200"}
+                                alt={o.itemName}
+                                className="w-10 h-10 rounded-xl object-cover"
+                              />
+                              <div>
+                                <p className="font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+                                  <span>{o.itemName}</span>
+                                  {o.selectedSize && (
+                                    <span className="px-1.5 py-0.2 rounded text-[10px] font-black bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                                      {o.selectedSize}
+                                    </span>
+                                  )}
+                                </p>
+                                <p className="text-stone-400 text-[11px]">{formatDate(o.createdAt)}</p>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="p-4">
+                            <p className="font-bold text-stone-900 dark:text-stone-100">{o.customer?.name || "Customer"}</p>
+                            <p className="text-stone-500 text-[11px]">{o.customer?.email}</p>
+                          </td>
+
+                          <td className="p-4">
+                            <p className="font-bold text-stone-900 dark:text-stone-100">{o.vendor?.name || "Local Pizzeria"}</p>
+                            <p className="text-stone-500 text-[11px]">{o.vendor?.email}</p>
+                          </td>
+
+                          <td className="p-4 text-stone-600 dark:text-stone-300">
+                            <p className="font-semibold">{o.deliveryDate}</p>
+                            <p className="text-stone-400 text-[11px] max-w-[180px] truncate">{o.deliveryAddress}</p>
+                          </td>
+
+                          <td className="p-4 font-black text-red-600 dark:text-red-400">
+                            {formatPrice(o.totalPrice)}
+                          </td>
+
+                          <td className="p-4">
+                            <span
+                              className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                                o.status === "delivered"
+                                  ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-300/40"
+                                  : o.status === "accepted"
+                                  ? "bg-blue-100 text-blue-800 dark:bg-blue-950/70 dark:text-blue-300 border border-blue-300/40"
+                                  : o.status === "pending"
+                                  ? "bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-300/40"
+                                  : "bg-red-100 text-red-800 dark:bg-red-950/70 dark:text-red-300 border border-red-300/40"
+                              }`}
+                            >
+                              {o.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="p-8 text-center text-stone-400">
+                        No orders match the selected filters.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

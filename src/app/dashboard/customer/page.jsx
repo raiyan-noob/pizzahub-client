@@ -60,9 +60,11 @@ function CustomerDashboardContent() {
   const totalOrders = orders.length;
   const pendingOrders = orders.filter((o) => o.status === "pending").length;
   const acceptedOrders = orders.filter((o) => o.status === "accepted").length;
+  const deliveredOrders = orders.filter((o) => o.status === "delivered").length;
   const rejectedOrders = orders.filter((o) => o.status === "rejected").length;
   const cancelledOrders = orders.filter((o) => o.status === "cancelled").length;
 
+  const [orderStatusFilter, setOrderStatusFilter] = useState("all");
   const [orderToCancel, setOrderToCancel] = useState(null);
   const [cancelling, setCancelling] = useState(false);
 
@@ -100,28 +102,35 @@ function CustomerDashboardContent() {
             </p>
           </div>
 
-          {/* 4 Required Overview Metric Cards (Page 6) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-xs">
+          {/* 5 Required Overview Metric Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+            <div className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-xs">
               <span className="text-xs uppercase font-bold text-stone-400">Total Orders</span>
               <p className="text-3xl font-black text-stone-900 dark:text-stone-100 mt-1">
                 {totalOrders}
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-xs">
+            <div className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-xs">
               <span className="text-xs uppercase font-bold text-amber-500">Pending</span>
               <p className="text-3xl font-black text-amber-500 mt-1">{pendingOrders}</p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-xs">
-              <span className="text-xs uppercase font-bold text-emerald-500">Accepted & Baking</span>
-              <p className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
+            <div className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-xs">
+              <span className="text-xs uppercase font-bold text-blue-500">Accepted & Baking</span>
+              <p className="text-3xl font-black text-blue-600 dark:text-blue-400 mt-1">
                 {acceptedOrders}
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-xs">
+            <div className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-xs">
+              <span className="text-xs uppercase font-bold text-emerald-600 dark:text-emerald-400">Delivered</span>
+              <p className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
+                {deliveredOrders}
+              </p>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-xs">
               <span className="text-xs uppercase font-bold text-red-500">Rejected / Cancelled</span>
               <p className="text-3xl font-black text-red-500 mt-1">
                 {rejectedOrders + cancelledOrders}
@@ -173,11 +182,13 @@ function CustomerDashboardContent() {
                     </div>
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
-                        order.status === "accepted"
-                          ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300"
+                        order.status === "delivered"
+                          ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-300/40"
+                          : order.status === "accepted"
+                          ? "bg-blue-100 text-blue-800 dark:bg-blue-950/70 dark:text-blue-300 border border-blue-300/40"
                           : order.status === "pending"
-                          ? "bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300"
-                          : "bg-stone-200 text-stone-700 dark:bg-stone-800 dark:text-stone-300"
+                          ? "bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-300/40"
+                          : "bg-red-100 text-red-800 dark:bg-red-950/70 dark:text-red-300 border border-red-300/40"
                       }`}
                     >
                       {order.status}
@@ -197,18 +208,61 @@ function CustomerDashboardContent() {
       {/* My Food Orders Tab */}
       {activeTab === "orders" && (
         <div className="space-y-6">
-          <div>
-            <h1 className="text-2xl font-black text-stone-900 dark:text-stone-100">
-              My Pizza Orders
-            </h1>
-            <p className="text-xs text-stone-500">
-              Check live order timeline progress, details, and cancel pending orders before baking begins.
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-black text-stone-900 dark:text-stone-100">
+                My Pizza Orders
+              </h1>
+              <p className="text-xs text-stone-500">
+                Check live order timeline progress, details, and cancel pending orders before baking begins.
+              </p>
+            </div>
+
+            {/* Quick Status Filter Tabs */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+              {[
+                { id: "all", label: "All", count: orders.length },
+                { id: "pending", label: "Pending", count: pendingOrders },
+                { id: "accepted", label: "Baking", count: acceptedOrders },
+                { id: "delivered", label: "Delivered", count: deliveredOrders },
+                { id: "cancelled", label: "Cancelled / Rejected", count: rejectedOrders + cancelledOrders },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setOrderStatusFilter(tab.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                    orderStatusFilter === tab.id
+                      ? "bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs"
+                      : "bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800"
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  <span
+                    className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                      orderStatusFilter === tab.id
+                        ? "bg-white/20 text-white dark:bg-stone-900/20 dark:text-stone-900"
+                        : "bg-stone-100 dark:bg-stone-800 text-stone-500"
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {orders.length > 0 ? (
             <div className="space-y-6">
-              {orders.map((order) => (
+              {orders
+                .filter((order) => {
+                  if (orderStatusFilter === "all") return true;
+                  if (orderStatusFilter === "cancelled") {
+                    return order.status === "cancelled" || order.status === "rejected";
+                  }
+                  return order.status === orderStatusFilter;
+                })
+                .map((order) => (
                 <div
                   key={order._id}
                   className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-6"
@@ -242,11 +296,13 @@ function CustomerDashboardContent() {
                     <div className="flex items-center gap-3">
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
-                          order.status === "accepted"
-                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300"
+                          order.status === "delivered"
+                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-300/40"
+                            : order.status === "accepted"
+                            ? "bg-blue-100 text-blue-800 dark:bg-blue-950/70 dark:text-blue-300 border border-blue-300/40"
                             : order.status === "pending"
-                            ? "bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300"
-                            : "bg-red-100 text-red-800 dark:bg-red-950/70 dark:text-red-300"
+                            ? "bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-300/40"
+                            : "bg-red-100 text-red-800 dark:bg-red-950/70 dark:text-red-300 border border-red-300/40"
                         }`}
                       >
                         {order.status}

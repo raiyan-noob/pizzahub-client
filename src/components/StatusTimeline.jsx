@@ -28,7 +28,8 @@ export function StatusTimeline({ status }) {
     { id: "delivered", label: "Delivered & Enjoyed", desc: "Hot pizza arrived at your door" },
   ];
 
-  const currentStepIndex = status === "accepted" ? 1 : 0;
+  const isDelivered = status === "delivered";
+  const currentStepIndex = isDelivered ? 2 : status === "accepted" ? 1 : 0;
 
   return (
     <div className="w-full py-2">
@@ -37,13 +38,13 @@ export function StatusTimeline({ status }) {
         <div className="absolute left-6 right-6 top-4 -translate-y-1/2 h-1 bg-stone-200 dark:bg-stone-700 -z-0">
           <div
             className="h-full bg-emerald-500 transition-all duration-500"
-            style={{ width: currentStepIndex === 1 ? "50%" : "0%" }}
+            style={{ width: isDelivered ? "100%" : currentStepIndex === 1 ? "50%" : "0%" }}
           />
         </div>
 
         {steps.map((step, idx) => {
-          const isCompleted = idx < currentStepIndex;
-          const isCurrent = idx === currentStepIndex;
+          const isCompleted = isDelivered ? true : idx < currentStepIndex;
+          const isCurrent = !isDelivered && idx === currentStepIndex;
 
           return (
             <div key={step.id} className="relative z-10 flex flex-col items-center text-center">
