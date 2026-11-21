@@ -25,6 +25,10 @@ export async function syncUserToken(user) {
   if (!user || (!user.email && !user.id)) return null;
 
   try {
+    // Avoid sending huge base64 profile image in token request
+    const imageToSend =
+      user.image && !user.image.startsWith("data:") ? user.image : undefined;
+
     const res = await fetch(`${API_BASE_URL}/api/auth/token`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -32,7 +36,7 @@ export async function syncUserToken(user) {
         email: user.email,
         id: user.id || user._id,
         name: user.name,
-        image: user.image,
+        image: imageToSend,
         role: user.role,
         businessName: user.businessName,
       }),
