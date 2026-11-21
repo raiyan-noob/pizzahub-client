@@ -21,6 +21,11 @@ function XLogo({ className = "w-4 h-4" }) {
 
 export function Footer() {
   const pathname = usePathname();
+  const [currentYear, setCurrentYear] = React.useState("2026");
+
+  React.useEffect(() => {
+    setCurrentYear(new Date().getFullYear().toString());
+  }, []);
 
   // Dashboard layout requirement: only sidebar, no navbar and footer
   if (pathname?.startsWith("/dashboard")) {
@@ -168,7 +173,7 @@ export function Footer() {
 
         {/* Bottom Bar: Copyright */}
         <div className="border-t border-stone-800 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-4">
-          <p>© {new Date().getFullYear()} PizzaHub Inc. All rights reserved.</p>
+          <p>© {currentYear} PizzaHub Inc. All rights reserved.</p>
           <p className="flex items-center gap-1">
             Crafted with <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500 inline" /> for pizza lovers worldwide.
           </p>

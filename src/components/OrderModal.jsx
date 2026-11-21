@@ -19,6 +19,13 @@ export function OrderModal({ item, isOpen, onClose, onOrderPlaced }) {
   const [selectedSize, setSelectedSize] = useState(
     item?.selectedSize || (item?.sizes && item.sizes.length > 0 ? item.sizes[0].size : "")
   );
+  const [minDate, setMinDate] = useState("");
+
+  React.useEffect(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    setMinDate(tomorrow.toISOString().split("T")[0]);
+  }, [isOpen]);
 
   React.useEffect(() => {
     if (item?.selectedSize) {
@@ -34,11 +41,6 @@ export function OrderModal({ item, isOpen, onClose, onOrderPlaced }) {
       : item?.price;
 
   if (!isOpen || !item) return null;
-
-  // Tomorrow's date formatted as minimum delivery date
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const minDate = tomorrow.toISOString().split("T")[0];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
