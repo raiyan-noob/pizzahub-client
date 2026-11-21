@@ -70,6 +70,15 @@ export function AuthProvider({ children }) {
             if (typeof window !== "undefined") {
               localStorage.removeItem("pizzahub_oauth_preferred_role");
             }
+            // Fetch fresh profile with delivery address & phone from database
+            try {
+              const meRes = await apiRequest("/api/auth/me");
+              if (meRes?.success && meRes?.user && mounted) {
+                setUser(meRes.user);
+              }
+            } catch {
+              // Non-blocking
+            }
           } else if (mounted) {
             setUser({
               id: session.user.id,
@@ -79,13 +88,38 @@ export function AuthProvider({ children }) {
               image: session.user.image,
               businessName: session.user.businessName,
               subscriptionPlan: session.user.subscriptionPlan || "free",
+              address: session.user.address || "",
+              phone: session.user.phone || "",
             });
           }
         } catch (e) {
           console.error("Auth init error:", e);
         }
       } else {
-        if (mounted) {
+        // If Better Auth session is not present or pending, check localStorage JWT token
+        const token = getAuthToken();
+        if (token) {
+          try {
+            const meRes = await apiRequest("/api/auth/me");
+            if (meRes?.success && meRes?.user && mounted) {
+              if (meRes.user.isBlocked) {
+                toast.error("Your account has been blocked.");
+                setAuthToken(null);
+                setUser(null);
+                setLoading(false);
+                return;
+              }
+              setUser(meRes.user);
+              if (mounted) setLoading(false);
+              return;
+            }
+          } catch {
+            if (mounted) {
+              setUser(null);
+              setAuthToken(null);
+            }
+          }
+        } else if (mounted) {
           setUser(null);
           setAuthToken(null);
         }

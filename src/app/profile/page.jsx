@@ -52,6 +52,31 @@ export default function ProfileSettingsPage() {
       setPhone(user.phone || "");
       setImage(user.image || "");
     }
+
+    // Direct query to MongoDB for freshest saved profile on load
+    let active = true;
+    async function fetchFreshProfile() {
+      try {
+        const res = await apiRequest("/api/auth/me");
+        if (res.success && res.user && active) {
+          setName(res.user.name || "");
+          setBusinessName(res.user.businessName || "");
+          setAddress(res.user.address || "");
+          setPhone(res.user.phone || "");
+          setImage(res.user.image || "");
+        }
+      } catch {
+        // Fallback to user context
+      }
+    }
+
+    if (isAuthenticated) {
+      fetchFreshProfile();
+    }
+
+    return () => {
+      active = false;
+    };
   }, [authLoading, isAuthenticated, user, router]);
 
   const resetFormToUser = () => {
@@ -104,6 +129,13 @@ export default function ProfileSettingsPage() {
 
       if (res.success) {
         toast.success("Profile updated successfully!");
+        if (res.user) {
+          setName(res.user.name || "");
+          setBusinessName(res.user.businessName || "");
+          setAddress(res.user.address || "");
+          setPhone(res.user.phone || "");
+          setImage(res.user.image || "");
+        }
         await refreshUser();
         setIsEditing(false);
       }
@@ -238,7 +270,7 @@ export default function ProfileSettingsPage() {
                         <User className="w-3.5 h-3.5 text-amber-500" /> Full Name
                       </span>
                       <p className="text-sm font-bold text-stone-900 dark:text-stone-100">
-                        {user.name || "Not provided"}
+                        {name || user.name || "Not provided"}
                       </p>
                     </div>
 
@@ -259,7 +291,7 @@ export default function ProfileSettingsPage() {
                           <Store className="w-3.5 h-3.5 text-amber-500" /> Restaurant / Bakery Name
                         </span>
                         <p className="text-sm font-bold text-stone-900 dark:text-stone-100">
-                          {user.businessName || "Not set yet"}
+                          {businessName || user.businessName || "Not set yet"}
                         </p>
                       </div>
                     )}
@@ -270,7 +302,7 @@ export default function ProfileSettingsPage() {
                         <Phone className="w-3.5 h-3.5 text-emerald-500" /> Contact Phone
                       </span>
                       <p className="text-sm font-bold text-stone-900 dark:text-stone-100">
-                        {user.phone || (
+                        {phone || user.phone || (
                           <span className="text-stone-400 font-normal italic">No phone added</span>
                         )}
                       </p>
@@ -282,7 +314,7 @@ export default function ProfileSettingsPage() {
                         <MapPin className="w-3.5 h-3.5 text-red-500" /> Default Delivery Address
                       </span>
                       <p className="text-sm font-bold text-stone-900 dark:text-stone-100">
-                        {user.address || (
+                        {address || user.address || (
                           <span className="text-stone-400 font-normal italic">No delivery address set</span>
                         )}
                       </p>
