@@ -210,7 +210,7 @@ export default function DashboardLayout({ children }) {
             className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 text-stone-400" />
-            <span>Back to Main Site</span>
+            <span>Back to Home</span>
           </Link>
           <button
             onClick={() => {
