@@ -38,13 +38,19 @@ export async function syncUserToken(user) {
       }),
     });
 
+    if (!res.ok) {
+      return null;
+    }
+
     const data = await res.json();
     if (data.success && data.token) {
       setAuthToken(data.token);
       return data;
     }
   } catch (err) {
-    console.error("Token sync error:", err);
+    if (process.env.NODE_ENV === "development") {
+      console.warn("Backend API not reachable at", API_BASE_URL);
+    }
   }
   return null;
 }

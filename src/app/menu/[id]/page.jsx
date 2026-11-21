@@ -21,6 +21,7 @@ import {
   Clock,
   MessageSquarePlus,
   CheckCircle,
+  Pizza,
 } from "lucide-react";
 import Link from "next/link";
 

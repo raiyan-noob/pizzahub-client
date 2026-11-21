@@ -27,6 +27,7 @@ import {
   AlertTriangle,
   Eye,
   Store,
+  Pizza,
 } from "lucide-react";
 import {
   ResponsiveContainer,
