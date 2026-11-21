@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import {
   Pizza,
@@ -26,11 +26,14 @@ import {
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { toast } from "sonner";
 
-export default function DashboardLayout({ children }) {
+function DashboardLayoutContent({ children }) {
   const { user, isAuthenticated, role, loading, logout } = useAuth();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const currentTab = searchParams.get("tab");
 
   // Role Protection Middleware on the Client
   // Page 3 & 4: "Users must not be able to open another role's dashboard by changing the URL manually."
@@ -96,6 +99,31 @@ export default function DashboardLayout({ children }) {
   };
 
   const navLinks = getNavLinks();
+
+  // Precise active tab calculation ensuring only the currently selected tab is active
+  const isLinkActive = (linkHref) => {
+    if (linkHref === "/profile") {
+      return pathname === "/profile";
+    }
+
+    const [basePath, queryString] = linkHref.split("?");
+    const linkParams = new URLSearchParams(queryString || "");
+    const linkTab = linkParams.get("tab");
+
+    // Match base dashboard path
+    if (pathname !== basePath && !pathname.startsWith(basePath + "/")) {
+      return false;
+    }
+
+    // If the navigation link targets a specific query tab (e.g. ?tab=orders)
+    if (linkTab) {
+      return currentTab === linkTab;
+    }
+
+    // For Overview (no tab query param in linkHref):
+    // Active only when there is no tab query param or when tab === "overview"
+    return !currentTab || currentTab === "overview";
+  };
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-stone-100/70 dark:bg-stone-950">
@@ -175,21 +203,21 @@ export default function DashboardLayout({ children }) {
             </div>
           </div>
 
-          {/* Navigation Links */}
+          {/* Navigation Links with dynamic active state & hover */}
           <nav className="space-y-1">
             {navLinks.map((link) => {
               const Icon = link.icon;
-              const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+              const isActive = isLinkActive(link.href);
 
               return (
                 <Link
                   key={link.name}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                     isActive
-                      ? "bg-red-600 text-white shadow-md shadow-red-500/20"
-                      : "text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800"
+                      ? "bg-red-600 text-white shadow-md shadow-red-500/20 font-bold"
+                      : "text-stone-600 dark:text-stone-300 hover:bg-red-50 hover:text-red-600 dark:hover:bg-stone-800 dark:hover:text-red-400"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -207,7 +235,7 @@ export default function DashboardLayout({ children }) {
         <div className="p-4 border-t border-stone-200/80 dark:border-stone-800 space-y-1">
           <Link
             href="/"
-            className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+            className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-red-600 dark:hover:text-red-400 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 text-stone-400" />
             <span>Back to Home</span>
@@ -230,5 +258,19 @@ export default function DashboardLayout({ children }) {
         <div className="max-w-7xl mx-auto">{children}</div>
       </main>
     </div>
+  );
+}
+
+export default function DashboardLayout({ children }) {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-stone-100/70 dark:bg-stone-950">
+          <div className="w-10 h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+    </Suspense>
   );
 }
