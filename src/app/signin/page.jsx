@@ -31,7 +31,7 @@ export default function SignInPage() {
       toast.error("Please enter your email and password");
       return;
     }
-
+    
     setSubmitting(true);
     try {
       const loggedUser = await login(email, password);
@@ -49,6 +49,7 @@ export default function SignInPage() {
       setSubmitting(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-amber-50/40 dark:bg-stone-950">
@@ -163,18 +164,7 @@ export default function SignInPage() {
           </button>
         </form>
 
-        {/* Demo Credentials Helper Pill */}
-        <div className="p-3.5 rounded-xl bg-amber-50/70 dark:bg-stone-800/40 border border-amber-200/50 dark:border-stone-700/50 text-xs text-stone-600 dark:text-stone-300 space-y-1">
-          <p className="font-bold text-stone-800 dark:text-stone-200">Test / Demo Logins:</p>
-          <div className="flex flex-wrap gap-2 pt-1 text-[11px]">
-            <span className="px-2 py-0.5 rounded-md bg-white dark:bg-stone-700 border border-stone-200 dark:border-stone-600">
-              Admin: <strong>admin@pizzahub.com</strong>
-            </span>
-            <span className="px-2 py-0.5 rounded-md bg-white dark:bg-stone-700 border border-stone-200 dark:border-stone-600">
-              Vendor: <strong>luigi@pizzahub.com</strong>
-            </span>
-          </div>
-        </div>
+        
 
         {/* Bottom Switcher */}
         <div className="text-center text-xs text-stone-500 pt-2">

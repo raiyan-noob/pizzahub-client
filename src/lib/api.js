@@ -28,7 +28,14 @@ export async function syncUserToken(user) {
     const res = await fetch(`${API_BASE_URL}/api/auth/token`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: user.email, id: user.id }),
+      body: JSON.stringify({
+        email: user.email,
+        id: user.id || user._id,
+        name: user.name,
+        image: user.image,
+        role: user.role,
+        businessName: user.businessName,
+      }),
     });
 
     const data = await res.json();

@@ -52,7 +52,11 @@ export function AuthProvider({ children }) {
 
       if (session?.user) {
         try {
-          const syncRes = await syncUserToken(session.user);
+          const preferredRole = typeof window !== "undefined" ? localStorage.getItem("pizzahub_oauth_preferred_role") : null;
+          const syncRes = await syncUserToken({
+            ...session.user,
+            role: session.user.role || preferredRole || "customer",
+          });
           if (syncRes?.success && mounted) {
             if (syncRes.user.isBlocked) {
               toast.error("Your account has been blocked.");
@@ -63,12 +67,15 @@ export function AuthProvider({ children }) {
               return;
             }
             setUser(syncRes.user);
+            if (typeof window !== "undefined") {
+              localStorage.removeItem("pizzahub_oauth_preferred_role");
+            }
           } else if (mounted) {
             setUser({
               id: session.user.id,
               name: session.user.name,
               email: session.user.email,
-              role: session.user.role || "customer",
+              role: session.user.role || preferredRole || "customer",
               image: session.user.image,
               businessName: session.user.businessName,
               subscriptionPlan: session.user.subscriptionPlan || "free",
@@ -177,13 +184,21 @@ export function AuthProvider({ children }) {
 
   const handleGoogleLogin = async (role = "customer") => {
     try {
-      localStorage.setItem("pizzahub_oauth_preferred_role", role);
-      await signIn.social({
+      if (typeof window !== "undefined") {
+        localStorage.setItem("pizzahub_oauth_preferred_role", role);
+      }
+      const res = await signIn.social({
         provider: "google",
-        callbackURL: window.location.origin,
+        callbackURL: typeof window !== "undefined" ? window.location.origin : "/",
       });
+      if (res?.error) {
+        throw new Error(res.error.message || "Google sign in failed");
+      }
+      return res;
     } catch (err) {
-      toast.error(err.message || "Google sign in failed");
+      console.error("Google sign in error:", err);
+      toast.error(err?.message || "Google sign in failed");
+      throw err;
     }
   };
 
