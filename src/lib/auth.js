@@ -1,26 +1,32 @@
 import dns from "node:dns";
-try {
-  dns.setServers(["8.8.8.8", "8.8.4.4"]);
-} catch {
-  // DNS fallback
+if (!process.env.VERCEL) {
+  try {
+    dns.setServers(["8.8.8.8", "8.8.4.4"]);
+  } catch {
+    // DNS fallback
+  }
 }
 
 import { betterAuth, APIError } from "better-auth";
 import { MongoClient, ObjectId } from "mongodb";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
 
-const uri = process.env.MONGODBURI || process.env.MONGODB_URI;
-
-if (!uri) {
-  throw new Error("MONGODBURI environment variable is missing");
-}
+// Safe resolution supporting both MONGODBURI and MONGODB_URI, with safe build-time fallback
+const uri =
+  process.env.MONGODBURI ||
+  process.env.MONGODB_URI ||
+  process.env.DATABASE_URL ||
+  "mongodb://127.0.0.1:27017/pizzahub";
 
 const client = new MongoClient(uri);
 const db = client.db("pizzahub");
 
 export const auth = betterAuth({
-  secret: process.env.BETTER_AUTH_SECRET,
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  secret: process.env.BETTER_AUTH_SECRET || "pizzahub-secret-key-32-characters-minimum-auth",
+  baseURL:
+    process.env.BETTER_AUTH_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "http://localhost:3000",
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 6,
