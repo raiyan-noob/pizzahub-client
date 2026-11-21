@@ -483,7 +483,7 @@ function VendorDashboardContent() {
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400 mb-1">
-                  Price ($ USD) *
+                  Price (BDT) *
                 </label>
                 <input
                   type="number"
@@ -693,7 +693,7 @@ function VendorDashboardContent() {
                 <h3 className="text-2xl font-black text-stone-900 dark:text-stone-100 mt-1">
                   Free Vendor
                 </h3>
-                <p className="text-3xl font-black text-stone-900 dark:text-stone-100 mt-4">$0 / mo</p>
+                <p className="text-3xl font-black text-stone-900 dark:text-stone-100 mt-4">BDT 0 / mo</p>
 
                 <ul className="space-y-3 pt-6 text-xs text-stone-600 dark:text-stone-300">
                   <li className="flex items-center gap-2">
@@ -738,7 +738,7 @@ function VendorDashboardContent() {
                   Premium Vendor
                 </h3>
                 <p className="text-3xl font-black text-red-600 dark:text-red-400 mt-4">
-                  $19.99 <span className="text-xs font-normal text-stone-500">/ month</span>
+                  BDT 19.99 <span className="text-xs font-normal text-stone-500">/ month</span>
                 </p>
 
                 <ul className="space-y-3 pt-6 text-xs text-stone-600 dark:text-stone-300">

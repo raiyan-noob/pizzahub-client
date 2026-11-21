@@ -21,7 +21,6 @@ import {
   Lock,
   Unlock,
   Store,
-  DollarSign,
   TrendingUp,
 } from "lucide-react";
 import {

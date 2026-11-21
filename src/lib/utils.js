@@ -6,10 +6,13 @@ export function cn(...inputs) {
 }
 
 export function formatPrice(price) {
+  const numericPrice = typeof price === "number" ? price : parseFloat(price) || 0;
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD",
-  }).format(price || 0);
+    currency: "BDT",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(numericPrice);
 }
 
 export function formatDate(dateString) {
