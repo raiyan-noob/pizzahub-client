@@ -7,6 +7,7 @@ import { apiRequest } from "@/lib/api";
 import { uploadToImgBB } from "@/lib/imgbb";
 import { formatPrice } from "@/lib/utils";
 import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import {
   UtensilsCrossed,
   PlusCircle,
@@ -195,17 +196,24 @@ function VendorDashboardContent() {
     }
   };
 
-  // Delete item
-  const handleDeleteItem = async (itemId) => {
-    if (!confirm("Are you sure you want to delete this menu item?")) return;
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [deletingItem, setDeletingItem] = useState(false);
+
+  // Delete item via ConfirmDialog
+  const handleConfirmDeleteItem = async () => {
+    if (!itemToDelete) return;
+    setDeletingItem(true);
     try {
-      const res = await apiRequest(`/api/menu/${itemId}`, { method: "DELETE" });
+      const res = await apiRequest(`/api/menu/${itemToDelete._id}`, { method: "DELETE" });
       if (res.success) {
         toast.success("Menu item removed");
+        setItemToDelete(null);
         loadVendorData();
       }
     } catch (err) {
       toast.error(err.message || "Failed to delete item");
+    } finally {
+      setDeletingItem(false);
     }
   };
 
@@ -398,8 +406,10 @@ function VendorDashboardContent() {
                       </button>
 
                       <button
-                        onClick={() => handleDeleteItem(item._id)}
-                        className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors"
+                        type="button"
+                        onClick={() => setItemToDelete(item)}
+                        aria-label="Delete item"
+                        className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -775,6 +785,28 @@ function VendorDashboardContent() {
           </div>
         </div>
       )}
+
+      {/* Delete Item Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!itemToDelete}
+        onClose={() => {
+          if (!deletingItem) setItemToDelete(null);
+        }}
+        onConfirm={handleConfirmDeleteItem}
+        isLoading={deletingItem}
+        title="Delete Menu Item?"
+        description={
+          itemToDelete ? (
+            <span>
+              Are you sure you want to permanently delete{" "}
+              <strong className="text-stone-900 dark:text-stone-100">{itemToDelete.itemName}</strong>? This item will no longer appear on your restaurant menu.
+            </span>
+          ) : ""
+        }
+        confirmText="Yes, Delete Item"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }

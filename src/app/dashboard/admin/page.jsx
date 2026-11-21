@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { apiRequest } from "@/lib/api";
 import { formatPrice, formatDate } from "@/lib/utils";
 import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import {
   Users,
   UtensilsCrossed,
@@ -108,25 +109,31 @@ function AdminDashboardContent() {
     });
   }, [loadStats, loadUsers, loadMenuItems, loadTransactions]);
 
-  // Block or Unblock user (Admin action)
-  const handleToggleBlockUser = async (targetUser) => {
-    const newBlockedState = !targetUser.isBlocked;
-    const actionText = newBlockedState ? "block" : "unblock";
-    if (!confirm(`Are you sure you want to ${actionText} ${targetUser.name || targetUser.email}?`)) {
-      return;
-    }
+  const [userToBlock, setUserToBlock] = useState(null);
+  const [blockingUser, setBlockingUser] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [deletingItem, setDeletingItem] = useState(false);
 
+  // Block or Unblock user via ConfirmDialog (Admin action)
+  const handleConfirmToggleBlock = async () => {
+    if (!userToBlock) return;
+    const newBlockedState = !userToBlock.isBlocked;
+    const actionText = newBlockedState ? "block" : "unblock";
+    setBlockingUser(true);
     try {
-      const res = await apiRequest(`/api/users/${targetUser.id || targetUser._id}/block`, {
+      const res = await apiRequest(`/api/users/${userToBlock.id || userToBlock._id}/block`, {
         method: "PATCH",
         body: JSON.stringify({ isBlocked: newBlockedState }),
       });
       if (res.success) {
         toast.success(res.message);
+        setUserToBlock(null);
         loadUsers();
       }
     } catch (err) {
       toast.error(err.message || `Failed to ${actionText} user`);
+    } finally {
+      setBlockingUser(false);
     }
   };
 
@@ -147,18 +154,22 @@ function AdminDashboardContent() {
     }
   };
 
-  // Delete inappropriate menu item
-  const handleDeleteItem = async (itemId) => {
-    if (!confirm("Are you sure you want to delete this menu item permanently?")) return;
+  // Delete inappropriate menu item via ConfirmDialog
+  const handleConfirmDeleteItem = async () => {
+    if (!itemToDelete) return;
+    setDeletingItem(true);
     try {
-      const res = await apiRequest(`/api/menu/${itemId}`, { method: "DELETE" });
+      const res = await apiRequest(`/api/menu/${itemToDelete._id}`, { method: "DELETE" });
       if (res.success) {
         toast.success("Item removed from platform");
+        setItemToDelete(null);
         loadMenuItems();
         loadStats();
       }
     } catch (err) {
       toast.error(err.message || "Failed to delete item");
+    } finally {
+      setDeletingItem(false);
     }
   };
 
@@ -362,8 +373,9 @@ function AdminDashboardContent() {
                       <td className="p-4">
                         {u.role !== "admin" ? (
                           <button
-                            onClick={() => handleToggleBlockUser(u)}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                            type="button"
+                            onClick={() => setUserToBlock(u)}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
                               u.isBlocked
                                 ? "bg-emerald-600 hover:bg-emerald-700 text-white"
                                 : "bg-red-600 hover:bg-red-700 text-white"
@@ -500,8 +512,10 @@ function AdminDashboardContent() {
                     </div>
 
                     <button
-                      onClick={() => handleDeleteItem(item._id)}
-                      className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg"
+                      type="button"
+                      onClick={() => setItemToDelete(item)}
+                      aria-label="Delete item"
+                      className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -585,6 +599,51 @@ function AdminDashboardContent() {
           </div>
         </div>
       )}
+
+      {/* Block / Unblock User Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!userToBlock}
+        onClose={() => {
+          if (!blockingUser) setUserToBlock(null);
+        }}
+        onConfirm={handleConfirmToggleBlock}
+        isLoading={blockingUser}
+        title={userToBlock?.isBlocked ? "Unblock User Account?" : "Block User Account?"}
+        description={
+          userToBlock ? (
+            <span>
+              Are you sure you want to {userToBlock.isBlocked ? "unblock" : "block"}{" "}
+              <strong className="text-stone-900 dark:text-stone-100">{userToBlock.name || userToBlock.email}</strong>?{" "}
+              {!userToBlock.isBlocked && "Blocked users cannot place orders, publish items, or access dashboards."}
+            </span>
+          ) : ""
+        }
+        confirmText={userToBlock?.isBlocked ? "Yes, Unblock" : "Yes, Block User"}
+        cancelText="Cancel"
+        variant={userToBlock?.isBlocked ? "primary" : "danger"}
+      />
+
+      {/* Delete Item Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!itemToDelete}
+        onClose={() => {
+          if (!deletingItem) setItemToDelete(null);
+        }}
+        onConfirm={handleConfirmDeleteItem}
+        isLoading={deletingItem}
+        title="Permanently Delete Menu Item?"
+        description={
+          itemToDelete ? (
+            <span>
+              Are you sure you want to permanently delete{" "}
+              <strong className="text-stone-900 dark:text-stone-100">{itemToDelete.itemName}</strong>? This item will be removed from the platform entirely.
+            </span>
+          ) : ""
+        }
+        confirmText="Yes, Delete Permanently"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }

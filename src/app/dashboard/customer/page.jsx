@@ -7,6 +7,7 @@ import { apiRequest } from "@/lib/api";
 import { formatPrice, formatDate } from "@/lib/utils";
 import { StatusTimeline } from "@/components/StatusTimeline";
 import { PizzaCard } from "@/components/PizzaCard";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { toast } from "sonner";
 import {
   ShoppingBag,
@@ -61,20 +62,26 @@ function CustomerDashboardContent() {
   const rejectedOrders = orders.filter((o) => o.status === "rejected").length;
   const cancelledOrders = orders.filter((o) => o.status === "cancelled").length;
 
-  // Cancel Pending Order (Page 6: "Customer can view order details and cancel pending orders")
-  const handleCancelOrder = async (orderId) => {
-    if (!confirm("Are you sure you want to cancel this pending pizza order?")) return;
+  const [orderToCancel, setOrderToCancel] = useState(null);
+  const [cancelling, setCancelling] = useState(false);
 
+  // Cancel Pending Order via Confirmation Dialog (Page 6: "Customer can view order details and cancel pending orders")
+  const handleConfirmCancel = async () => {
+    if (!orderToCancel) return;
+    setCancelling(true);
     try {
-      const res = await apiRequest(`/api/orders/${orderId}/cancel`, {
+      const res = await apiRequest(`/api/orders/${orderToCancel._id}/cancel`, {
         method: "PATCH",
       });
       if (res.success) {
-        toast.success(res.message);
+        toast.success(res.message || "Order cancelled successfully");
+        setOrderToCancel(null);
         loadCustomerData();
       }
     } catch (err) {
       toast.error(err.message || "Failed to cancel order");
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -237,8 +244,9 @@ function CustomerDashboardContent() {
                       {/* Cancel pending order (Page 6 requirement) */}
                       {order.status === "pending" && (
                         <button
-                          onClick={() => handleCancelOrder(order._id)}
-                          className="px-3.5 py-1.5 rounded-xl border border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 text-xs font-bold transition-colors"
+                          type="button"
+                          onClick={() => setOrderToCancel(order)}
+                          className="px-3.5 py-1.5 rounded-xl border border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 text-xs font-bold transition-colors cursor-pointer"
                         >
                           Cancel Order
                         </button>
@@ -353,6 +361,29 @@ function CustomerDashboardContent() {
           )}
         </div>
       )}
+
+      {/* Cancel Order Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!orderToCancel}
+        onClose={() => {
+          if (!cancelling) setOrderToCancel(null);
+        }}
+        onConfirm={handleConfirmCancel}
+        isLoading={cancelling}
+        title="Cancel Pizza Order?"
+        description={
+          orderToCancel ? (
+            <span>
+              Are you sure you want to cancel your order for{" "}
+              <strong className="text-stone-900 dark:text-stone-100">{orderToCancel.itemName}</strong> scheduled for delivery on{" "}
+              <strong className="text-stone-900 dark:text-stone-100">{orderToCancel.deliveryDate}</strong>? This action cannot be undone.
+            </span>
+          ) : ""
+        }
+        confirmText="Yes, Cancel Order"
+        cancelText="Nevermind, Keep Order"
+        variant="danger"
+      />
     </div>
   );
 }
