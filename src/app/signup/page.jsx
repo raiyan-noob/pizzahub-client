@@ -37,10 +37,10 @@ export default function SignUpPage() {
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  // Auto redirect if already logged in (Vendor redirects to home "/")
+  // Auto redirect if already logged in (Vendor & Admin redirect to home "/")
   React.useEffect(() => {
     if (isAuthenticated) {
-      if (role === "admin") router.push("/dashboard/admin");
+      if (role === "admin") router.push("/");
       else if (role === "vendor") router.push("/");
       else router.push("/dashboard/customer");
     }

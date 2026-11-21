@@ -17,10 +17,10 @@ export default function SignInPage() {
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  // Auto redirect if already logged in (Vendor redirects to home "/")
+  // Auto redirect if already logged in (Vendor & Admin redirect to home "/")
   React.useEffect(() => {
     if (isAuthenticated) {
-      if (role === "admin") router.push("/dashboard/admin");
+      if (role === "admin") router.push("/");
       else if (role === "vendor") router.push("/");
       else router.push("/dashboard/customer");
     }
@@ -36,9 +36,9 @@ export default function SignInPage() {
     setSubmitting(true);
     try {
       const loggedUser = await login(email, password);
-      // Redirect users: vendor redirects to home ("/") per requirement
+      // Redirect users: vendor and admin redirect to home ("/") per requirement
       if (loggedUser?.role === "admin") {
-        router.push("/dashboard/admin");
+        router.push("/");
       } else if (loggedUser?.role === "vendor") {
         router.push("/");
       } else {
