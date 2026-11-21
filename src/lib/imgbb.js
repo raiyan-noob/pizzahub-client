@@ -27,8 +27,11 @@ export async function uploadToImgBB(file) {
   try {
     const apiKey =
       process.env.NEXT_PUBLIC_IMAGEBB_API ||
-      process.env.IMAGEBB_API ||
-      "17df13f4618f60acf3c266a57ee7a110";
+      process.env.IMAGEBB_API;
+
+    if (!apiKey) {
+      throw new Error("ImgBB API key is missing in environment variables");
+    }
 
     const formData = new FormData();
     formData.append("image", file);

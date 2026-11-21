@@ -14,8 +14,11 @@ export async function POST(req) {
 
     const apiKey =
       process.env.IMAGEBB_API ||
-      process.env.NEXT_PUBLIC_IMAGEBB_API ||
-      "17df13f4618f60acf3c266a57ee7a110";
+      process.env.NEXT_PUBLIC_IMAGEBB_API;
+
+    if (!apiKey) {
+      throw new Error("ImgBB API key is missing in environment variables");
+    }
 
     // Attempt ImgBB upload from server-side Node environment (no browser CORS / Cloudflare block)
     try {

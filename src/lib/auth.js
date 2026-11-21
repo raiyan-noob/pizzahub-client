@@ -9,19 +9,17 @@ import { betterAuth, APIError } from "better-auth";
 import { MongoClient, ObjectId } from "mongodb";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
 
-const DIRECT_REPLICA_URI =
-  "mongodb://PizzaHub:8hltHVeesJUZtL9F@ac-zgr00ce-shard-00-00.hffrouf.mongodb.net:27017,ac-zgr00ce-shard-00-01.hffrouf.mongodb.net:27017,ac-zgr00ce-shard-00-02.hffrouf.mongodb.net:27017/pizzahub?ssl=true&replicaSet=atlas-97vqqn-shard-0&authSource=admin&retryWrites=true&w=majority";
+const uri = process.env.MONGODBURI || process.env.MONGODB_URI;
 
-const uri =
-  process.env.MONGODBURI ||
-  process.env.MONGODB_URI ||
-  DIRECT_REPLICA_URI;
+if (!uri) {
+  throw new Error("MONGODBURI environment variable is missing");
+}
 
 const client = new MongoClient(uri);
 const db = client.db("pizzahub");
 
 export const auth = betterAuth({
-  secret: process.env.BETTER_AUTH_SECRET || "KOzk9YeoVCHMSJt2IqEajUtMSumYGbvE",
+  secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
   emailAndPassword: {
     enabled: true,
