@@ -88,7 +88,7 @@ function PaymentSuccessContent() {
             <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-stone-800/60 border border-amber-200/50 dark:border-stone-700/50 text-xs text-left space-y-2">
               <p className="flex items-center justify-between">
                 <span className="text-stone-500">Plan:</span>
-                <strong className="text-stone-800 dark:text-stone-200 capitalize">Vendor Premium (BDT 19.99/mo)</strong>
+                <strong className="text-stone-800 dark:text-stone-200 capitalize">Vendor Premium (BDT 2,000/mo)</strong>
               </p>
               <p className="flex items-center justify-between">
                 <span className="text-stone-500">Status:</span>

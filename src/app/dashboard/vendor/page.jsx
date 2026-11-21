@@ -489,7 +489,7 @@ function VendorDashboardContent() {
                   type="number"
                   step="0.01"
                   required
-                  placeholder="18.50"
+                  placeholder="500"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500"
@@ -738,7 +738,7 @@ function VendorDashboardContent() {
                   Premium Vendor
                 </h3>
                 <p className="text-3xl font-black text-red-600 dark:text-red-400 mt-4">
-                  BDT 19.99 <span className="text-xs font-normal text-stone-500">/ month</span>
+                  BDT 2,000 <span className="text-xs font-normal text-stone-500">/ month</span>
                 </p>
 
                 <ul className="space-y-3 pt-6 text-xs text-stone-600 dark:text-stone-300">
