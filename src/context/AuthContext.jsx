@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { authClient, useSession, signIn, signUp, signOut } from "@/lib/auth-client";
-import { setAuthToken, syncUserToken, apiRequest, getAuthToken } from "@/lib/api";
+import { setAuthToken, syncUserToken, apiRequest, getAuthToken, checkUserBlocked } from "@/lib/api";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -52,18 +52,50 @@ export function AuthProvider({ children }) {
 
       if (session?.user) {
         try {
+          // 1. Proactively check if session user email is blocked
+          if (session.user.email) {
+            const isBlocked = await checkUserBlocked(session.user.email);
+            if (isBlocked) {
+              toast.error("Your account has been blocked by an administrator and cannot log in.");
+              await signOut().catch(() => {});
+              setAuthToken(null);
+              setUser(null);
+              if (mounted) setLoading(false);
+              if (typeof window !== "undefined" && (window.location.pathname.startsWith("/dashboard") || window.location.pathname.startsWith("/profile"))) {
+                router.push("/signin");
+              }
+              return;
+            }
+          }
+
           const preferredRole = typeof window !== "undefined" ? localStorage.getItem("pizzahub_oauth_preferred_role") : null;
           const syncRes = await syncUserToken({
             ...session.user,
             role: session.user.role || preferredRole || "customer",
           });
+
+          if (syncRes?.isBlocked || syncRes?.user?.isBlocked) {
+            toast.error(syncRes?.message || "Your account has been blocked by an administrator and cannot log in.");
+            await signOut().catch(() => {});
+            setAuthToken(null);
+            setUser(null);
+            if (mounted) setLoading(false);
+            if (typeof window !== "undefined" && (window.location.pathname.startsWith("/dashboard") || window.location.pathname.startsWith("/profile"))) {
+              router.push("/signin");
+            }
+            return;
+          }
+
           if (syncRes?.success && mounted) {
             if (syncRes.user.isBlocked) {
-              toast.error("Your account has been blocked.");
-              await signOut();
+              toast.error("Your account has been blocked by an administrator and cannot log in.");
+              await signOut().catch(() => {});
               setAuthToken(null);
               setUser(null);
               setLoading(false);
+              if (typeof window !== "undefined" && (window.location.pathname.startsWith("/dashboard") || window.location.pathname.startsWith("/profile"))) {
+                router.push("/signin");
+              }
               return;
             }
             setUser(syncRes.user);
@@ -74,12 +106,30 @@ export function AuthProvider({ children }) {
             try {
               const meRes = await apiRequest("/api/auth/me");
               if (meRes?.success && meRes?.user && mounted) {
+                if (meRes.user.isBlocked) {
+                  toast.error("Your account has been blocked by an administrator and cannot log in.");
+                  await signOut().catch(() => {});
+                  setAuthToken(null);
+                  setUser(null);
+                  setLoading(false);
+                  if (typeof window !== "undefined" && (window.location.pathname.startsWith("/dashboard") || window.location.pathname.startsWith("/profile"))) {
+                    router.push("/signin");
+                  }
+                  return;
+                }
                 setUser(meRes.user);
               }
             } catch {
               // Non-blocking
             }
           } else if (mounted) {
+            if (syncRes?.isBlocked) {
+              await signOut().catch(() => {});
+              setAuthToken(null);
+              setUser(null);
+              setLoading(false);
+              return;
+            }
             setUser({
               id: session.user.id,
               name: session.user.name,
@@ -95,7 +145,11 @@ export function AuthProvider({ children }) {
             setTimeout(async () => {
               if (mounted && !getAuthToken()) {
                 const retrySync = await syncUserToken(session.user);
-                if (retrySync?.user && mounted) {
+                if (retrySync?.isBlocked) {
+                  await signOut().catch(() => {});
+                  setAuthToken(null);
+                  setUser(null);
+                } else if (retrySync?.user && mounted) {
                   setUser(retrySync.user);
                 }
               }
@@ -112,10 +166,14 @@ export function AuthProvider({ children }) {
             const meRes = await apiRequest("/api/auth/me");
             if (meRes?.success && meRes?.user && mounted) {
               if (meRes.user.isBlocked) {
-                toast.error("Your account has been blocked.");
+                toast.error("Your account has been blocked by an administrator and cannot log in.");
+                await signOut().catch(() => {});
                 setAuthToken(null);
                 setUser(null);
                 setLoading(false);
+                if (typeof window !== "undefined" && (window.location.pathname.startsWith("/dashboard") || window.location.pathname.startsWith("/profile"))) {
+                  router.push("/signin");
+                }
                 return;
               }
               setUser(meRes.user);
@@ -142,13 +200,20 @@ export function AuthProvider({ children }) {
     return () => {
       mounted = false;
     };
-  }, [session, sessionLoading]);
+  }, [session, sessionLoading, router]);
 
   useEffect(() => {
     const handleFocus = async () => {
       if (session?.user && !getAuthToken()) {
+        const isBlocked = await checkUserBlocked(session.user.email);
+        if (isBlocked) {
+          await signOut().catch(() => {});
+          setAuthToken(null);
+          setUser(null);
+          return;
+        }
         const syncRes = await syncUserToken(session.user);
-        if (syncRes?.user) setUser(syncRes.user);
+        if (syncRes?.user && !syncRes.user.isBlocked) setUser(syncRes.user);
       }
     };
     if (typeof window !== "undefined") {
@@ -160,32 +225,70 @@ export function AuthProvider({ children }) {
   const handleLogin = async (email, password) => {
     setLoading(true);
     try {
+      const normalizedEmail = email?.toLowerCase()?.trim();
+
+      // 1. Proactively check if email is blocked before attempting sign-in
+      const isBlocked = await checkUserBlocked(normalizedEmail);
+      if (isBlocked) {
+        await signOut().catch(() => {});
+        setAuthToken(null);
+        setUser(null);
+        const blockedMsg = "Your account has been blocked by an administrator and cannot log in.";
+        toast.error(blockedMsg);
+        throw new Error(blockedMsg);
+      }
+
+      // 2. Perform authentication with Better Auth
       const { data, error } = await signIn.email({
-        email,
+        email: normalizedEmail,
         password,
       });
 
       if (error) {
+        if (error.message?.includes("blocked")) {
+          await signOut().catch(() => {});
+          setAuthToken(null);
+          setUser(null);
+          const blockedMsg = "Your account has been blocked by an administrator and cannot log in.";
+          toast.error(blockedMsg);
+          throw new Error(blockedMsg);
+        }
         throw new Error(error.message || "Failed to sign in");
       }
 
-      // Sync JWT with server
-      const syncRes = await syncUserToken(data?.user || { email });
-      if (syncRes?.user) {
+      // 3. Sync JWT with server
+      const syncRes = await syncUserToken(data?.user || { email: normalizedEmail });
+      if (syncRes?.isBlocked || syncRes?.user?.isBlocked) {
+        await signOut().catch(() => {});
+        setAuthToken(null);
+        setUser(null);
+        const blockedMsg = syncRes?.message || "Your account has been blocked by an administrator and cannot log in.";
+        toast.error(blockedMsg);
+        throw new Error(blockedMsg);
+      }
+
+      if (syncRes?.success && syncRes.user) {
         if (syncRes.user.isBlocked) {
-          await signOut();
+          await signOut().catch(() => {});
           setAuthToken(null);
           setUser(null);
-          throw new Error("Your account has been blocked by an administrator.");
+          const blockedMsg = "Your account has been blocked by an administrator and cannot log in.";
+          toast.error(blockedMsg);
+          throw new Error(blockedMsg);
         }
         setUser(syncRes.user);
         toast.success(`Welcome back, ${syncRes.user.name || "Foodie"}!`);
         return syncRes.user;
       }
 
-      return data?.user;
+      if (data?.user) {
+        setUser(data.user);
+        return data.user;
+      }
     } catch (err) {
-      toast.error(err.message || "Invalid credentials");
+      if (!err.message?.includes("blocked")) {
+        toast.error(err.message || "Invalid credentials");
+      }
       throw err;
     } finally {
       setLoading(false);
@@ -195,6 +298,16 @@ export function AuthProvider({ children }) {
   const handleSignUp = async ({ name, email, password, role, image, businessName }) => {
     setLoading(true);
     try {
+      const normalizedEmail = email?.toLowerCase()?.trim();
+
+      // Check if email is blocked before attempting signup
+      const isBlocked = await checkUserBlocked(normalizedEmail);
+      if (isBlocked) {
+        const blockedMsg = "This email has been blocked by an administrator and cannot sign up or log in.";
+        toast.error(blockedMsg);
+        throw new Error(blockedMsg);
+      }
+
       // Password validation check
       // Page 3: minimum 6 characters, one uppercase letter, one lowercase letter
       if (password.length < 6) {
@@ -212,7 +325,7 @@ export function AuthProvider({ children }) {
 
       const { data, error } = await signUp.email({
         name,
-        email,
+        email: normalizedEmail,
         password,
         role: assignedRole,
         image: image || "",
@@ -220,10 +333,24 @@ export function AuthProvider({ children }) {
       });
 
       if (error) {
+        if (error.message?.includes("blocked")) {
+          const blockedMsg = "This email has been blocked by an administrator and cannot sign up or log in.";
+          toast.error(blockedMsg);
+          throw new Error(blockedMsg);
+        }
         throw new Error(error.message || "Sign up failed");
       }
 
-      const syncRes = await syncUserToken({ email, id: data?.user?.id });
+      const syncRes = await syncUserToken({ email: normalizedEmail, id: data?.user?.id });
+      if (syncRes?.isBlocked || syncRes?.user?.isBlocked) {
+        await signOut().catch(() => {});
+        setAuthToken(null);
+        setUser(null);
+        const blockedMsg = syncRes?.message || "This email has been blocked by an administrator and cannot sign up or log in.";
+        toast.error(blockedMsg);
+        throw new Error(blockedMsg);
+      }
+
       if (syncRes?.user) {
         setUser(syncRes.user);
       }
@@ -231,7 +358,9 @@ export function AuthProvider({ children }) {
       toast.success("Account created successfully!");
       return data?.user;
     } catch (err) {
-      toast.error(err.message || "Failed to create account");
+      if (!err.message?.includes("blocked")) {
+        toast.error(err.message || "Failed to create account");
+      }
       throw err;
     } finally {
       setLoading(false);
@@ -279,7 +408,7 @@ export function AuthProvider({ children }) {
         user,
         session,
         loading: loading || sessionLoading,
-        isAuthenticated: !!user,
+        isAuthenticated: !!user && !user?.isBlocked,
         role: user?.role || "customer",
         isBlocked: !!user?.isBlocked,
         login: handleLogin,

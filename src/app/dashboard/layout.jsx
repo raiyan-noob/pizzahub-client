@@ -28,7 +28,7 @@ import { toast } from "sonner";
 import { LoadingScreen } from "@/components/LoadingScreen";
 
 function DashboardLayoutContent({ children }) {
-  const { user, isAuthenticated, role, loading, logout } = useAuth();
+  const { user, isAuthenticated, role, loading, logout, isBlocked } = useAuth();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -41,8 +41,13 @@ function DashboardLayoutContent({ children }) {
   useEffect(() => {
     if (loading) return;
 
-    if (!isAuthenticated) {
-      toast.info("Please sign in to access your dashboard");
+    if (!isAuthenticated || isBlocked || user?.isBlocked) {
+      if (isBlocked || user?.isBlocked) {
+        toast.error("Your account has been blocked by an administrator and cannot access the dashboard.");
+        logout();
+      } else {
+        toast.info("Please sign in to access your dashboard");
+      }
       router.push("/signin");
       return;
     }
@@ -56,7 +61,7 @@ function DashboardLayoutContent({ children }) {
     } else if (pathname.startsWith("/dashboard/customer") && role !== "customer" && role !== "admin") {
       if (role === "vendor") router.push("/dashboard/vendor");
     }
-  }, [loading, isAuthenticated, role, pathname, router]);
+  }, [loading, isAuthenticated, isBlocked, user, role, pathname, router, logout]);
 
   if (loading) {
     return <LoadingScreen message="Verifying security credentials..." />;

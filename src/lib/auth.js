@@ -5,8 +5,8 @@ try {
   // DNS fallback
 }
 
-import { betterAuth } from "better-auth";
-import { MongoClient } from "mongodb";
+import { betterAuth, APIError } from "better-auth";
+import { MongoClient, ObjectId } from "mongodb";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
 
 const DIRECT_REPLICA_URI =
@@ -31,6 +31,41 @@ export const auth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          if (user?.email) {
+            const existing = await db.collection("user").findOne({
+              email: user.email.toLowerCase().trim(),
+            });
+            if (existing?.isBlocked) {
+              throw new APIError("FORBIDDEN", {
+                message: "This email has been blocked by an administrator and cannot sign up or log in.",
+              });
+            }
+          }
+        },
+      },
+    },
+    session: {
+      create: {
+        before: async (session) => {
+          if (session?.userId) {
+            const query = ObjectId.isValid(session.userId)
+              ? { $or: [{ _id: new ObjectId(session.userId) }, { _id: session.userId }, { id: session.userId }] }
+              : { $or: [{ _id: session.userId }, { id: session.userId }] };
+            const existingUser = await db.collection("user").findOne(query);
+            if (existingUser?.isBlocked) {
+              throw new APIError("FORBIDDEN", {
+                message: "Your account has been blocked by an administrator and cannot log in.",
+              });
+            }
+          }
+        },
+      },
     },
   },
   user: {

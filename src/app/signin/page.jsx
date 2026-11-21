@@ -36,6 +36,9 @@ export default function SignInPage() {
     setSubmitting(true);
     try {
       const loggedUser = await login(email, password);
+      if (!loggedUser || loggedUser.isBlocked) {
+        return;
+      }
       // Redirect users: vendor and admin redirect to home ("/") per requirement
       if (loggedUser?.role === "admin") {
         router.push("/");

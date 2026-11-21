@@ -21,6 +21,21 @@ export function getAuthToken() {
   return cachedToken;
 }
 
+export async function checkUserBlocked(email) {
+  if (!email) return false;
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/api/auth/check-blocked?email=${encodeURIComponent(
+        email.toLowerCase().trim()
+      )}`
+    );
+    const data = await res.json().catch(() => ({}));
+    return !!data.isBlocked;
+  } catch {
+    return false;
+  }
+}
+
 export async function syncUserToken(user) {
   if (!user || (!user.email && !user.id)) return null;
 
@@ -42,11 +57,19 @@ export async function syncUserToken(user) {
       }),
     });
 
+    const data = await res.json().catch(() => ({}));
+
     if (!res.ok) {
+      if (res.status === 403 || data.isBlocked || data.message?.includes("blocked")) {
+        return {
+          success: false,
+          isBlocked: true,
+          message: data.message || "Your account has been blocked by an administrator.",
+        };
+      }
       return null;
     }
 
-    const data = await res.json();
     if (data.success && data.token) {
       setAuthToken(data.token);
       return data;
@@ -69,6 +92,12 @@ export async function apiRequest(endpoint, options = {}) {
       const sessionRes = await authClient.getSession();
       if (sessionRes?.data?.user) {
         const syncRes = await syncUserToken(sessionRes.data.user);
+        if (syncRes?.isBlocked) {
+          setAuthToken(null);
+          const { signOut } = await import("@/lib/auth-client");
+          await signOut().catch(() => {});
+          return { success: false, isBlocked: true, message: syncRes.message };
+        }
         if (syncRes?.token) {
           token = syncRes.token;
         }
@@ -118,6 +147,18 @@ export async function apiRequest(endpoint, options = {}) {
   }));
 
   if (!response.ok) {
+    if (response.status === 403 && data.message?.includes("blocked")) {
+      setAuthToken(null);
+      if (typeof window !== "undefined") {
+        import("@/lib/auth-client").then(({ signOut }) => signOut().catch(() => {}));
+        import("sonner").then(({ toast }) => {
+          toast.error(data.message || "Your account has been blocked by an administrator.");
+        });
+        setTimeout(() => {
+          window.location.href = "/signin";
+        }, 300);
+      }
+    }
     const error = new Error(data.message || `Request failed with status ${response.status}`);
     error.status = response.status;
     error.data = data;

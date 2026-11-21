@@ -96,6 +96,10 @@ export default function SignUpPage() {
         businessName: accountRole === "vendor" ? businessName : undefined,
       });
 
+      if (!newUser || newUser.isBlocked) {
+        return;
+      }
+
       // Redirect according to role (Vendor redirects to home "/")
       if (accountRole === "vendor") {
         router.push("/");
