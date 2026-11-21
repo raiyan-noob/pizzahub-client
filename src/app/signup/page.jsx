@@ -37,11 +37,11 @@ export default function SignUpPage() {
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  // Auto redirect if already logged in
+  // Auto redirect if already logged in (Vendor redirects to home "/")
   React.useEffect(() => {
     if (isAuthenticated) {
       if (role === "admin") router.push("/dashboard/admin");
-      else if (role === "vendor") router.push("/dashboard/vendor");
+      else if (role === "vendor") router.push("/");
       else router.push("/dashboard/customer");
     }
   }, [isAuthenticated, role, router]);
@@ -96,9 +96,9 @@ export default function SignUpPage() {
         businessName: accountRole === "vendor" ? businessName : undefined,
       });
 
-      // Redirect according to role (Page 4 requirement)
+      // Redirect according to role (Vendor redirects to home "/")
       if (accountRole === "vendor") {
-        router.push("/dashboard/vendor");
+        router.push("/");
       } else {
         router.push("/dashboard/customer");
       }
