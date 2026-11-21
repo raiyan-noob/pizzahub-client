@@ -7,6 +7,7 @@ import { apiRequest } from "@/lib/api";
 import { formatPrice, formatDate } from "@/lib/utils";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { LoadingScreen } from "@/components/LoadingScreen";
 import {
   Users,
   UtensilsCrossed,
@@ -649,13 +650,7 @@ function AdminDashboardContent() {
 
 export default function AdminDashboardPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-[50vh] flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingScreen message="Loading administrative portal..." />}>
       <AdminDashboardContent />
     </Suspense>
   );

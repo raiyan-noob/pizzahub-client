@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { toast } from "sonner";
+import { LoadingScreen } from "@/components/LoadingScreen";
 
 function DashboardLayoutContent({ children }) {
   const { user, isAuthenticated, role, loading, logout } = useAuth();
@@ -58,14 +59,7 @@ function DashboardLayoutContent({ children }) {
   }, [loading, isAuthenticated, role, pathname, router]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-stone-50/50 dark:bg-stone-950">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-12 h-12 rounded-full border-4 border-red-600 border-t-transparent animate-spin" />
-          <p className="text-sm font-semibold text-stone-500">Verifying security credentials...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Verifying security credentials..." />;
   }
 
   // Define sidebar links based strictly on current user's role

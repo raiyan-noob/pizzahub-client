@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { PizzaCard } from "@/components/PizzaCard";
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { apiRequest } from "@/lib/api";
 import {
   Search,
@@ -295,13 +296,7 @@ function BrowseMenuContent() {
 
 export default function BrowseMenuPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="w-10 h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingScreen message="Loading wood-fired menu..." />}>
       <BrowseMenuContent />
     </Suspense>
   );

@@ -8,6 +8,7 @@ import { formatPrice, formatDate } from "@/lib/utils";
 import { StatusTimeline } from "@/components/StatusTimeline";
 import { PizzaCard } from "@/components/PizzaCard";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { toast } from "sonner";
 import {
   ShoppingBag,
@@ -400,13 +401,7 @@ function CustomerDashboardContent() {
 
 export default function CustomerDashboardPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-[50vh] flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingScreen message="Loading your orders & slices..." />}>
       <CustomerDashboardContent />
     </Suspense>
   );

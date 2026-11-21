@@ -8,6 +8,7 @@ import { uploadToImgBB } from "@/lib/imgbb";
 import { formatPrice } from "@/lib/utils";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { LoadingScreen } from "@/components/LoadingScreen";
 import {
   UtensilsCrossed,
   PlusCircle,
@@ -52,6 +53,7 @@ function VendorDashboardContent() {
   const [submittingItem, setSubmittingItem] = useState(false);
   const [upgradingStripe, setUpgradingStripe] = useState(false);
   const [togglingItemId, setTogglingItemId] = useState(null);
+  const [orderActionLoading, setOrderActionLoading] = useState(null);
 
   // Form states for Add Menu Item
   const [itemName, setItemName] = useState("");
@@ -274,17 +276,28 @@ function VendorDashboardContent() {
 
   // Accept or Reject Customer Order (Vendor action)
   const handleOrderAction = async (orderId, action) => {
+    const loadingKey = `${orderId}-${action}`;
+    setOrderActionLoading(loadingKey);
+    const actionLabel = action === "accepted" ? "Accepting" : "Rejecting";
+    toast.loading(`${actionLabel} order...`, { id: `order-${orderId}` });
+
     try {
       const res = await apiRequest(`/api/orders/${orderId}/vendor-action`, {
         method: "PATCH",
         body: JSON.stringify({ action }),
       });
       if (res.success) {
-        toast.success(res.message);
+        toast.success(res.message || `Order ${action} successfully!`, { id: `order-${orderId}` });
+        // Optimistically update order status in local state
+        setOrders((prev) =>
+          prev.map((o) => (o._id === orderId ? { ...o, status: action } : o))
+        );
         loadVendorData();
       }
     } catch (err) {
-      toast.error(err.message || `Failed to ${action} order`);
+      toast.error(err.message || `Failed to ${action} order`, { id: `order-${orderId}` });
+    } finally {
+      setOrderActionLoading(null);
     }
   };
 
@@ -850,18 +863,40 @@ function VendorDashboardContent() {
                   {order.status === "pending" ? (
                     <div className="flex items-center gap-2.5 w-full lg:w-auto">
                       <button
+                        type="button"
+                        disabled={!!orderActionLoading}
                         onClick={() => handleOrderAction(order._id, "accepted")}
-                        className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-colors"
+                        className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
                       >
-                        <Check className="w-4 h-4" />
-                        <span>Accept Order</span>
+                        {orderActionLoading === `${order._id}-accepted` ? (
+                          <>
+                            <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <span>Accepting...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Check className="w-4 h-4" />
+                            <span>Accept Order</span>
+                          </>
+                        )}
                       </button>
                       <button
+                        type="button"
+                        disabled={!!orderActionLoading}
                         onClick={() => handleOrderAction(order._id, "rejected")}
-                        className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-md transition-colors"
+                        className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
                       >
-                        <X className="w-4 h-4" />
-                        <span>Reject Order</span>
+                        {orderActionLoading === `${order._id}-rejected` ? (
+                          <>
+                            <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <span>Rejecting...</span>
+                          </>
+                        ) : (
+                          <>
+                            <X className="w-4 h-4" />
+                            <span>Reject Order</span>
+                          </>
+                        )}
                       </button>
                     </div>
                   ) : (
@@ -1032,13 +1067,7 @@ function VendorDashboardContent() {
 
 export default function VendorDashboardPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-[50vh] flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingScreen message="Loading restaurant dashboard..." />}>
       <VendorDashboardContent />
     </Suspense>
   );
