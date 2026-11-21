@@ -161,12 +161,7 @@ export default function HomePage() {
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Link>
 
-                <Link
-                  href="/signup"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl border-2 border-amber-300/80 dark:border-stone-700 hover:border-red-500 font-bold text-sm text-stone-800 dark:text-stone-200 bg-white/80 dark:bg-stone-850 backdrop-blur-xs shadow-xs hover:shadow-md transition-all"
-                >
-                  <span>Restaurant Owner? Join as Vendor</span>
-                </Link>
+                
               </div>
 
               {/* Key Trust Stats Cards */}
