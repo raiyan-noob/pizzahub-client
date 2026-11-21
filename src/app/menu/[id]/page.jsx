@@ -39,6 +39,7 @@ export default function ItemDetailsPage({ params }) {
   // Modals
   const [orderModalOpen, setOrderModalOpen] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [selectedSize, setSelectedSize] = useState("");
 
   // Reviews state
   const [reviews, setReviews] = useState([]);
@@ -47,6 +48,17 @@ export default function ItemDetailsPage({ params }) {
 
   // Favorites
   const [isFavorite, setIsFavorite] = useState(false);
+
+  useEffect(() => {
+    if (item?.sizes && item.sizes.length > 0) {
+      setSelectedSize(item.sizes[0].size);
+    }
+  }, [item]);
+
+  const activePrice =
+    item?.sizes && item.sizes.length > 0 && selectedSize
+      ? item.sizes.find((s) => s.size === selectedSize)?.price || item.price
+      : item?.price;
 
   // Redirect to sign in if not logged in (Page 3 requirement)
   useEffect(() => {
@@ -272,10 +284,10 @@ export default function ItemDetailsPage({ params }) {
             <div className="p-4 rounded-2xl bg-amber-50/60 dark:bg-stone-800/60 border border-amber-200/60 dark:border-stone-700/60 flex items-center justify-between">
               <div>
                 <span className="text-xs text-stone-500 uppercase tracking-wider font-bold">
-                  Price Per Slice / Pie
+                  {selectedSize ? `Price (${selectedSize})` : "Price Per Slice / Pie"}
                 </span>
                 <p className="text-3xl font-black text-red-600 dark:text-red-400">
-                  {formatPrice(item.price)}
+                  {formatPrice(activePrice)}
                 </p>
               </div>
               <div className="flex items-center gap-1 text-xs text-stone-500">
@@ -283,6 +295,51 @@ export default function ItemDetailsPage({ params }) {
                 <span>Baked to order</span>
               </div>
             </div>
+
+            {/* Interactive Pizza Size Selector (Inches) */}
+            {item.sizes && item.sizes.length > 0 && (
+              <div className="space-y-2.5">
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400 flex items-center gap-1.5">
+                  <Pizza className="w-4 h-4 text-amber-500" />
+                  Select Pizza Size (Inches)
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  {item.sizes.map((s) => {
+                    const isSelected = selectedSize === s.size;
+                    return (
+                      <button
+                        key={s.size}
+                        type="button"
+                        onClick={() => setSelectedSize(s.size)}
+                        className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                          isSelected
+                            ? "border-red-500 bg-red-50/80 dark:bg-red-950/40 ring-2 ring-red-500/30 shadow-xs"
+                            : "border-stone-200 dark:border-stone-800 hover:border-amber-300 dark:hover:border-stone-700 bg-white dark:bg-stone-850"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span
+                            className={`text-xs font-black ${
+                              isSelected
+                                ? "text-red-600 dark:text-red-400"
+                                : "text-stone-800 dark:text-stone-200"
+                            }`}
+                          >
+                            {s.size}
+                          </span>
+                          {isSelected && (
+                            <CheckCircle className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
+                          )}
+                        </div>
+                        <p className="text-xs font-bold text-stone-500 dark:text-stone-400 mt-1">
+                          {formatPrice(s.price)}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Description */}
             <div>
@@ -418,7 +475,7 @@ export default function ItemDetailsPage({ params }) {
 
       {/* Order Form Modal */}
       <OrderModal
-        item={item}
+        item={{ ...item, price: activePrice, selectedSize }}
         isOpen={orderModalOpen}
         onClose={() => setOrderModalOpen(false)}
       />

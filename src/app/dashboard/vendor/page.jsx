@@ -59,6 +59,13 @@ function VendorDashboardContent() {
   const [location, setLocation] = useState("");
   const [itemImages, setItemImages] = useState([]);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [useSizes, setUseSizes] = useState(true);
+  const [pizzaSizes, setPizzaSizes] = useState([
+    { size: "6 inch", price: "450" },
+    { size: "8 inch", price: "650" },
+    { size: "12 inch", price: "950" },
+    { size: "15 inch", price: "1350" },
+  ]);
 
   // Edit item state
   const [editingItem, setEditingItem] = useState(null);
@@ -147,6 +154,20 @@ function VendorDashboardContent() {
       return;
     }
 
+    const activeSizes = useSizes
+      ? pizzaSizes
+          .filter((s) => s.size && Number(s.price) > 0)
+          .map((s) => ({ size: s.size.trim(), price: Number(s.price) }))
+      : [];
+
+    const computedBasePrice =
+      activeSizes.length > 0 ? activeSizes[0].price : parseFloat(price);
+
+    if (isNaN(computedBasePrice) || computedBasePrice <= 0) {
+      toast.error("Please provide a valid price or add at least one pizza size");
+      return;
+    }
+
     setSubmittingItem(true);
     try {
       const res = await apiRequest("/api/menu", {
@@ -155,7 +176,8 @@ function VendorDashboardContent() {
           itemName,
           category,
           description,
-          price: parseFloat(price),
+          price: computedBasePrice,
+          sizes: activeSizes.length > 0 ? activeSizes : undefined,
           location,
           images: itemImages,
         }),
@@ -169,6 +191,12 @@ function VendorDashboardContent() {
         setPrice("");
         setLocation("");
         setItemImages([]);
+        setPizzaSizes([
+          { size: "6 inch", price: "450" },
+          { size: "8 inch", price: "650" },
+          { size: "12 inch", price: "950" },
+          { size: "15 inch", price: "1350" },
+        ]);
         loadVendorData();
         router.push("/dashboard/vendor?tab=items");
       }
@@ -392,9 +420,16 @@ function VendorDashboardContent() {
                         {item.itemName}
                       </h4>
                       <p className="text-xs text-stone-500 mt-1 line-clamp-2">{item.description}</p>
-                      <p className="text-sm font-black text-red-600 dark:text-red-400 mt-2">
-                        {formatPrice(item.price)}
-                      </p>
+                      <div className="flex items-center flex-wrap gap-2 mt-2">
+                        <p className="text-sm font-black text-red-600 dark:text-red-400">
+                          {item.sizes && item.sizes.length > 1 ? `From ${formatPrice(item.price)}` : formatPrice(item.price)}
+                        </p>
+                        {item.sizes && item.sizes.length > 0 && (
+                          <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-300/40">
+                            {item.sizes.length} sizes ({item.sizes.map((s) => s.size).join(", ")})
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     <div className="pt-4 mt-4 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between">
@@ -483,18 +518,123 @@ function VendorDashboardContent() {
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400 mb-1">
-                  Price (BDT) *
+                  {useSizes ? "Starting / Base Price (BDT)" : "Price (BDT) *"}
                 </label>
                 <input
                   type="number"
-                  step="0.01"
-                  required
+                  step="1"
+                  required={!useSizes}
                   placeholder="500"
-                  value={price}
+                  value={useSizes && pizzaSizes[0]?.price ? pizzaSizes[0].price : price}
                   onChange={(e) => setPrice(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500"
+                  disabled={useSizes}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500 disabled:opacity-75 disabled:bg-stone-100 dark:disabled:bg-stone-850"
                 />
               </div>
+            </div>
+
+            {/* Pizza Inch Sizes & Pricing Config */}
+            <div className="p-5 rounded-2xl bg-amber-50/50 dark:bg-stone-850 border border-amber-200/70 dark:border-stone-700/60 space-y-3.5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+                    <Pizza className="w-4 h-4 text-amber-500" />
+                    Pizza Size Variations (Inches) & Pricing
+                  </h4>
+                  <p className="text-[11px] text-stone-500">
+                    Configure standard inch sizes (5", 6", 8", 9", 12", 15") with custom prices in BDT
+                  </p>
+                </div>
+                <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-stone-600 dark:text-stone-400">
+                  <input
+                    type="checkbox"
+                    checked={useSizes}
+                    onChange={(e) => setUseSizes(e.target.checked)}
+                    className="w-4 h-4 rounded text-red-600 accent-red-600 cursor-pointer"
+                  />
+                  <span>Enable Sizes</span>
+                </label>
+              </div>
+
+              {useSizes && (
+                <div className="space-y-3 pt-1">
+                  {/* Preset quick buttons */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[11px] text-stone-400 font-semibold mr-1">Quick Add Inch:</span>
+                    {["5 inch", "6 inch", "8 inch", "9 inch", "12 inch", "15 inch"].map((preset) => {
+                      const exists = pizzaSizes.some((s) => s.size === preset);
+                      return (
+                        <button
+                          key={preset}
+                          type="button"
+                          disabled={exists}
+                          onClick={() => {
+                            if (!exists) {
+                              setPizzaSizes([...pizzaSizes, { size: preset, price: "" }]);
+                            }
+                          }}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                            exists
+                              ? "bg-stone-200 dark:bg-stone-800 text-stone-400 cursor-not-allowed"
+                              : "bg-white dark:bg-stone-800 border border-amber-300 dark:border-stone-600 text-stone-800 dark:text-stone-200 hover:bg-amber-100 dark:hover:bg-stone-700 cursor-pointer"
+                          }`}
+                        >
+                          +{preset}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Size Tiers Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    {pizzaSizes.map((s, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-2 p-2.5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700"
+                      >
+                        <input
+                          type="text"
+                          value={s.size}
+                          onChange={(e) => {
+                            const updated = [...pizzaSizes];
+                            updated[idx].size = e.target.value;
+                            setPizzaSizes(updated);
+                          }}
+                          placeholder="e.g. 8 inch"
+                          className="w-24 px-2.5 py-1.5 rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs font-bold text-stone-900 dark:text-stone-100"
+                        />
+                        <div className="flex-1 relative">
+                          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-stone-400">
+                            BDT
+                          </span>
+                          <input
+                            type="number"
+                            value={s.price}
+                            onChange={(e) => {
+                              const updated = [...pizzaSizes];
+                              updated[idx].price = e.target.value;
+                              setPizzaSizes(updated);
+                            }}
+                            placeholder="Price"
+                            className="w-full pl-11 pr-2.5 py-1.5 rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs font-bold text-stone-900 dark:text-stone-100"
+                          />
+                        </div>
+                        {pizzaSizes.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPizzaSizes(pizzaSizes.filter((_, i) => i !== idx));
+                            }}
+                            className="p-1.5 text-stone-400 hover:text-red-500 rounded-lg cursor-pointer transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>
@@ -591,8 +731,13 @@ function VendorDashboardContent() {
                     />
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-base text-stone-900 dark:text-stone-100">
-                          {order.itemName}
+                        <h4 className="font-bold text-base text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                          <span>{order.itemName}</span>
+                          {order.selectedSize && (
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-black bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300/40">
+                              {order.selectedSize}
+                            </span>
+                          )}
                         </h4>
                         <span
                           className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${

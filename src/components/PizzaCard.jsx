@@ -81,11 +81,16 @@ export function PizzaCard({ item, onFavoriteToggle, initialFavorite = false }) {
         {/* Ambient Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent opacity-90" />
 
-        {/* Category Pill Badge */}
-        <div className="absolute top-3.5 left-3.5">
+        {/* Category Pill Badge & Sizes Indicator */}
+        <div className="absolute top-3.5 left-3.5 flex items-center gap-1.5">
           <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-black tracking-wider uppercase bg-amber-500/95 text-stone-950 shadow-md backdrop-blur-md border border-amber-300/40">
             {item.category}
           </span>
+          {item.sizes && item.sizes.length > 0 && (
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-black tracking-wider uppercase bg-stone-900/80 text-amber-300 shadow-md backdrop-blur-md border border-amber-400/30">
+              {item.sizes.length} Sizes
+            </span>
+          )}
         </div>
 
         {/* Favorite Heart Button */}
@@ -104,7 +109,7 @@ export function PizzaCard({ item, onFavoriteToggle, initialFavorite = false }) {
 
         {/* Price Tag Overlay */}
         <div className="absolute bottom-3.5 left-3.5 bg-gradient-to-r from-red-600 to-rose-600 text-white font-black text-sm px-3.5 py-1.5 rounded-xl shadow-lg border border-red-400/30">
-          {formatPrice(item.price)}
+          {item.sizes && item.sizes.length > 1 ? `From ${formatPrice(item.price)}` : formatPrice(item.price)}
         </div>
 
         {/* Premium Vendor Badge */}

@@ -16,6 +16,22 @@ export function OrderModal({ item, isOpen, onClose, onOrderPlaced }) {
   const [deliveryAddress, setDeliveryAddress] = useState(user?.address || "");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [selectedSize, setSelectedSize] = useState(
+    item?.selectedSize || (item?.sizes && item.sizes.length > 0 ? item.sizes[0].size : "")
+  );
+
+  React.useEffect(() => {
+    if (item?.selectedSize) {
+      setSelectedSize(item.selectedSize);
+    } else if (item?.sizes && item.sizes.length > 0) {
+      setSelectedSize(item.sizes[0].size);
+    }
+  }, [item]);
+
+  const activePrice =
+    item?.sizes && item.sizes.length > 0 && selectedSize
+      ? item.sizes.find((s) => s.size === selectedSize)?.price || item.price
+      : item?.price;
 
   if (!isOpen || !item) return null;
 
@@ -57,6 +73,7 @@ export function OrderModal({ item, isOpen, onClose, onOrderPlaced }) {
           deliveryDate,
           deliveryAddress,
           message,
+          size: selectedSize || undefined,
         }),
       });
 
@@ -116,10 +133,42 @@ export function OrderModal({ item, isOpen, onClose, onOrderPlaced }) {
             </h4>
             <p className="text-xs text-stone-500 truncate">{item.category}</p>
             <p className="text-xs font-semibold text-red-600 dark:text-red-400 mt-1">
-              Unit Price: {formatPrice(item.price)}
+              Unit Price: {formatPrice(activePrice)} {selectedSize ? `• ${selectedSize}` : ""}
             </p>
           </div>
         </div>
+
+        {/* Pizza Size Selection (Inches) */}
+        {item.sizes && item.sizes.length > 0 && (
+          <div className="px-6 pt-3">
+            <label className="block text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400 mb-2 flex items-center gap-1.5">
+              <Pizza className="w-3.5 h-3.5 text-amber-500" />
+              Choose Pizza Size (Inches) *
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {item.sizes.map((s) => {
+                const isSelected = selectedSize === s.size;
+                return (
+                  <button
+                    key={s.size}
+                    type="button"
+                    onClick={() => setSelectedSize(s.size)}
+                    className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                      isSelected
+                        ? "border-red-500 bg-red-50/80 dark:bg-red-950/40 text-red-600 dark:text-red-400 font-black ring-2 ring-red-500/20"
+                        : "border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-bold hover:bg-stone-50 dark:hover:bg-stone-750"
+                    }`}
+                  >
+                    <div className="text-xs">{s.size}</div>
+                    <div className="text-[11px] font-semibold text-stone-500 dark:text-stone-400">
+                      {formatPrice(s.price)}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Order Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
@@ -206,7 +255,7 @@ export function OrderModal({ item, isOpen, onClose, onOrderPlaced }) {
               ) : (
                 <>
                   <CheckCircle className="w-4 h-4" />
-                  <span>Confirm Order ({formatPrice(item.price)})</span>
+                  <span>Confirm Order ({formatPrice(activePrice)})</span>
                 </>
               )}
             </button>

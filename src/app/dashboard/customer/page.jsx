@@ -157,8 +157,13 @@ function CustomerDashboardContent() {
                         className="w-12 h-12 rounded-xl object-cover"
                       />
                       <div>
-                        <h4 className="font-bold text-sm text-stone-900 dark:text-stone-100">
-                          {order.itemName}
+                        <h4 className="font-bold text-sm text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                          <span>{order.itemName}</span>
+                          {order.selectedSize && (
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-black bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300/40">
+                              {order.selectedSize}
+                            </span>
+                          )}
                         </h4>
                         <p className="text-xs text-stone-500">
                           Delivery: {order.deliveryDate} • {formatPrice(order.totalPrice)}
@@ -215,8 +220,13 @@ function CustomerDashboardContent() {
                         className="w-16 h-16 rounded-2xl object-cover"
                       />
                       <div>
-                        <h4 className="font-bold text-lg text-stone-900 dark:text-stone-100">
-                          {order.itemName}
+                        <h4 className="font-bold text-lg text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                          <span>{order.itemName}</span>
+                          {order.selectedSize && (
+                            <span className="px-2.5 py-0.5 rounded-md text-xs font-black bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300/40">
+                              {order.selectedSize}
+                            </span>
+                          )}
                         </h4>
                         <p className="text-xs text-stone-500">
                           Placed on: {formatDate(order.createdAt)}

@@ -454,49 +454,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Customer Testimonials Grid */}
-          <div className="pt-12 border-t border-amber-200/60 dark:border-stone-800">
-            <div className="text-center max-w-xl mx-auto mb-12">
-              <h3 className="text-2xl font-black text-stone-900 dark:text-stone-100">
-                Loved by Pizza Devotees
-              </h3>
-              <p className="text-xs text-stone-500 mt-1">Real feedback from our happy foodies & bakers</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {testimonials.map((t, idx) => (
-                <div
-                  key={idx}
-                  className="p-7 rounded-3xl bg-white dark:bg-stone-850 border border-amber-200/70 dark:border-stone-700/60 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center gap-1 text-amber-500 mb-3.5">
-                      {[...Array(t.rating)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-amber-500" />
-                      ))}
-                    </div>
-                    <p className="text-xs text-stone-700 dark:text-stone-300 italic leading-relaxed mb-6 font-medium">
-                      "{t.quote}"
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-3 pt-4 border-t border-amber-100 dark:border-stone-700/60">
-                    <img
-                      src={t.avatar}
-                      alt={t.name}
-                      className="w-10.5 h-10.5 rounded-full object-cover border border-amber-300"
-                    />
-                    <div>
-                      <p className="text-sm font-black text-stone-900 dark:text-stone-100">
-                        {t.name}
-                      </p>
-                      <p className="text-[11px] text-amber-700 dark:text-stone-400 font-semibold">{t.role}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          
         </div>
       </section>
 
