@@ -327,6 +327,10 @@ function VendorDashboardContent() {
     }
   };
 
+  if (loading) {
+    return <LoadingScreen message="Loading restaurant dashboard..." />;
+  }
+
   return (
     <div className="space-y-8">
       {/* Overview Tab */}

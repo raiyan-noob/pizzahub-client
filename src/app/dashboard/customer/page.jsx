@@ -88,6 +88,10 @@ function CustomerDashboardContent() {
     }
   };
 
+  if (loading) {
+    return <LoadingScreen message="Loading your orders & slices..." />;
+  }
+
   return (
     <div className="space-y-8">
       {/* Overview Tab */}

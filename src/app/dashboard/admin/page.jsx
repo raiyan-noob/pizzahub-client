@@ -208,6 +208,10 @@ function AdminDashboardContent() {
     { name: "Delivered Orders", count: stats?.orderStatusCounts?.delivered || 0, fill: "#059669" },
   ];
 
+  if (loading) {
+    return <LoadingScreen message="Loading administrative portal & statistics..." />;
+  }
+
   return (
     <div className="space-y-8">
       {/* Overview Tab */}
